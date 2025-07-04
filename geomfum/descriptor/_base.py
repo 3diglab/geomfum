@@ -28,14 +28,23 @@ class SpectralDescriptor(Descriptor, abc.ABC):
         Whether to compute landmarks based descriptors.
     """
 
-    def __init__(self, spectral_filter=None, domain=None,sigma=1, scale = True, landmarks = False):
+    def __init__(
+        self,
+        spectral_filter=None,
+        domain=None,
+        sigma=1,
+        scale=True,
+        landmarks=False,
+        k=None,
+    ):
         super().__init__()
         self.domain = domain
         self.sigma = sigma
         self.scale = scale
         self.landmarks = landmarks
+        self.k = k
         self.spectral_filter = spectral_filter
-        
+
     def __call__(self, shape):
         """Compute descriptor.
 
@@ -46,18 +55,21 @@ class SpectralDescriptor(Descriptor, abc.ABC):
         """
         vals = shape.basis.vals
         vecs = shape.basis.vecs
-        
-        domain, sigma = self.domain(shape) if callable(self.domain) else (self.domain, self.sigma)
-        
-        coefs = self.spectral_filter(vals, domain, sigma)        
 
-        
+        domain, sigma = (
+            self.domain(shape) if callable(self.domain) else (self.domain, self.sigma)
+        )
+
+        coefs = self.spectral_filter(vals, domain, sigma)
+
         if self.landmarks:
             if not hasattr(shape, "landmark_indices") or shape.landmark_indices is None:
                 raise AttributeError(
                     f"Shape must have 'landmark_indices' set for {self.__class__.__name__}."
                 )
-            return self._compute_landmark_descriptor(coefs, vecs, shape.landmark_indices)
+            return self._compute_landmark_descriptor(
+                coefs, vecs, shape.landmark_indices
+            )
         else:
             return self._compute_descriptor(coefs, vecs)
 
