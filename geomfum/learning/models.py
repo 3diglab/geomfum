@@ -37,6 +37,7 @@ class FMNet(BaseModel):
         feature_extractor=FeatureExtractor.from_registry(which="diffusionnet"),
         fmap_module=ForwardFunctionalMap(),
         converter=P2pFromFmConverter(),
+        
     ):
         super(FMNet, self).__init__()
 
@@ -71,8 +72,10 @@ class FMNet(BaseModel):
             p2p12 : array-like, shape=[..., num_points_a]
                 Point-to-point correspondence from shape b to shape a.
         """
+
         desc_a = self.descriptors_module(mesh_a)
         desc_b = self.descriptors_module(mesh_b)
+
 
         fmap12, fmap21 = self.fmap_module(mesh_a, mesh_b, desc_a, desc_b)
         p2p12 = p2p21 = None
