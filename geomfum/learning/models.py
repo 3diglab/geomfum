@@ -62,13 +62,13 @@ class FMNet(BaseModel):
 
         Returns
         -------
-            fmap12 : array-like, shape=[..., spectrum_size_a, spectrum_size_b]
+            fmap12 : array-like, shape=[..., spectrum_size_b, spectrum_size_a]
                 Functional map from shape a to shape b.
-            fmap21 : array-like, shape=[..., spectrum_size_b, spectrum_size_a]
+            fmap21 : array-like, shape=[..., spectrum_size_a, spectrum_size_b]
                 Functional map from shape b to shape a.
-            p2p12 : array-like, shape=[..., num_points_b]
+            p2p21 : array-like, shape=[..., num_points_b]
                 Point-to-point correspondence from shape a to shape b.
-            p2p21 : array-like, shape=[..., num_points_a]
+            p2p12 : array-like, shape=[..., num_points_a]
                 Point-to-point correspondence from shape b to shape a.
         """
         desc_a = self.descriptors_module(mesh_a)
