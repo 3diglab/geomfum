@@ -156,7 +156,7 @@ class BijectivityLoss(nn.Module):
         metric = SquaredFrobeniusLoss()
         eye_b = torch.eye(fmap12.shape[0], device=fmap12.device)
         eye_a = torch.eye(fmap21.shape[1], device=fmap21.device)
-        return self.weight * metric(torch.mm(fmap12, fmap21), eye_b) + metric(
+        return self.weight * metric(torch.mm(fmap12, fmap21), eye_b) + self.weight * metric(
             torch.mm(fmap21, fmap12), eye_a
         )
 
