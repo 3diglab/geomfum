@@ -37,12 +37,12 @@ class ForwardFunctionalMap(abc.ABC, nn.Module):
             Spectral descriptors on first basis.
         sdescr_b : array-like, shape=[..., spectrum_size_b]
             Spectral descriptors on second basis.
-        mask: array-like, shape=[..., spectrum_size_a, spectrum_size_b]
+        mask: array-like, shape=[..., spectrum_size_b, spectrum_size_a]
             Mask for the functional map.
 
         Returns
         -------
-            fmap12 : array-like, shape=[..., spectrum_size_a, spectrum_size_b]
+            fmap12 : array-like, shape=[..., spectrum_size_b, spectrum_size_a]
                 Functional map from shape a to shape b.
         """
         At_A = sdescr_a.T @ sdescr_a
@@ -79,9 +79,9 @@ class ForwardFunctionalMap(abc.ABC, nn.Module):
 
         Returns
         -------
-        fmap_12 : array-like, shape[spectrum_size_a, spectrum_size_b]
+        fmap_12 : array-like, shape[spectrum_size_b, spectrum_size_a]
             Functional map from shape a to shape b.
-        fmap_21: array-like, shape=[spectrum_size_b, spectrum_size_a] or None
+        fmap_21: array-like, shape=[spectrum_size_a, spectrum_size_b] or None
             Functional map from shape b to shape a if bijective, otherwise None.
         """
         evals_a = mesh_a.basis.vals
@@ -111,7 +111,7 @@ class ForwardFunctionalMap(abc.ABC, nn.Module):
 
         Returns
         -------
-        mask : array-like, shape=[..., spectrum_size_a, spectrum_size_b]
+        mask : array-like, shape=[..., spectrum_size_b, spectrum_size_a]
             Mask for the functional map.
         """
         evals_a = gs.array(evals_a)
