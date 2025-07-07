@@ -155,10 +155,10 @@ class BijectivityLoss(nn.Module):
         """
         metric = SquaredFrobeniusLoss()
         eye_b = torch.eye(fmap12.shape[0], device=fmap12.device)
-        eye_a = torch.eye(fmap21.shape[1], device=fmap21.device)
-        return self.weight * metric(torch.mm(fmap12, fmap21), eye_b) + self.weight * metric(
-            torch.mm(fmap21, fmap12), eye_a
-        )
+        eye_a = torch.eye(fmap21.shape[0], device=fmap21.device)
+        return self.weight * metric(
+            torch.mm(fmap12, fmap21), eye_b
+        ) + self.weight * metric(torch.mm(fmap21, fmap12), eye_a)
 
 
 class LaplacianCommutativityLoss(nn.Module):
@@ -200,6 +200,123 @@ class LaplacianCommutativityLoss(nn.Module):
             torch.einsum("bc,c->bc", fmap12, mesh_b.basis.vals),
             torch.einsum("b,bc->bc", mesh_a.basis.vals, fmap12),
         )
+
+
+class GroundTruthSupervisionLoss(nn.Module):
+    """
+    Computes the loss of a functional map by measuring the discrepancy between the functional map and a ground truth functional map.
+
+    Parameters
+    ----------
+    weight : float, optional
+        Weight for the loss term (default: 1).
+    """
+
+    def __init__(self, weight=1):
+        super().__init__()
+        self.weight = weight
+
+    required_inputs = ["fmap12", "fmap21", "mesh_a", "mesh_b", "corr_a", "corr_b"]
+
+    def _compute_ground_truth_map(self, mesh_a, mesh_b, corr_a, corr_b):
+        """Compute the ground truth functional maps.
+
+        Parameters
+        ----------
+        mesh_a : TriangleMesh
+            TriangleMesh object containing source shape information.
+        mesh_b : TriangleMesh
+            TriangleMesh object containing target shape information.
+        corr_a : torch.Tensor
+            Indices of source correspondences.
+        corr_b : torch.Tensor
+            Indices of target correspondences.
+
+        Returns
+        -------
+        fmap12_gt ,fmap21_gt : torch.Tensor
+            Ground truth functional maps from shape 1 to shape 2 and from shape 2 to shape 1.
+        """
+        fmap12_gt = mesh_b.basis.pinv[:, corr_b] @ mesh_a.basis.vecs[corr_a, :]
+
+        fmap21_gt = mesh_a.basis.pinv[:, corr_a] @ mesh_b.basis.vecs[corr_b, :]
+
+        return fmap12_gt, fmap21_gt
+
+    def forward(self, fmap12, fmap21, mesh_a, mesh_b, corr_a, corr_b):
+        """
+        Forward pass.
+
+        Parameters
+        ----------
+        fmap12 : torch.Tensor
+            Functional map tensor from shape 1 to shape 2 of shape (spectrum_size_b, spectrum_size_a).
+        fmap21 : torch.Tensor
+            Functional map tensor from shape 2 to shape 1 of shape (spectrum_size_a, spectrum_size_b).
+        mesh_a : TriangleMesh
+            TriangleMesh object containing source shape information.
+        mesh_b : TriangleMesh
+            TriangleMesh object containing target shape information.
+        corr_a : torch.Tensor
+            Indices of source correspondences.
+        corr_b : torch.Tensor
+            Indices of target correspondences.
+
+        Returns
+        -------
+        torch.Tensor
+            Scalar tensor representing the weighted mean squared Frobenius norm between fmap12 and the ground truth functional map, and between fmap21 and the ground truth functional map.
+        """
+        metric = SquaredFrobeniusLoss()
+        fmap12_gt, fmap21_gt = self._compute_ground_truth_map(
+            mesh_a, mesh_b, corr_a, corr_b
+        )
+        return self.weight * metric(fmap12, fmap12_gt) + self.weight * metric(
+            fmap21, fmap21_gt
+        )
+
+
+class FmapDescriptorsSupervisionLoss(nn.Module):
+    """
+    Computes the loss of a functional map by measuring the discrepancy between the functional map and a functional map computed by the similarity of the descriptors.
+
+    Parameters
+    ----------
+    weight : float, optional
+        Weight for the loss term (default: 1).
+    """
+
+    def __init__(self, weight=1):
+        super().__init__()
+        self.weight = weight
+
+    required_inputs = ["fmap12", "fmap21", "fmap12_desc", "fmap21_desc"]
+
+    def forward(self, fmap12, fmap21, fmap12_desc, fmap21_desc):
+        """
+        Forward pass.
+
+        Parameters
+        ----------
+        fmap12 : torch.Tensor
+            Functional map tensor from shape 1 to shape 2 of shape (spectrum_size_b, spectrum_size_a).
+        fmap21 : torch.Tensor
+            Functional map tensor from shape 2 to shape 1 of shape (spectrum_size_a, spectrum_size_b).
+        fmap12_desc : torch.Tensor
+            Functional map from the descriptor similarity tensor from shape 1 to shape 2 of shape (spectrum_size_b, spectrum_size_a).
+        fmap21_desc : torch.Tensor
+            Functional map from the descriptor similarity tensor from shape 2 to shape 1 of shape (spectrum_size_a, spectrum_size_b).
+
+        Returns
+        -------
+        torch.Tensor
+            Scalar tensor representing the weighted mean squared Frobenius norm between fmap12 and fmap12_desc, and between fmap21 and fmap21_desc.
+        """
+        metric = SquaredFrobeniusLoss()
+        return self.weight * metric(fmap12, fmap12_desc) + self.weight * metric(
+            fmap21, fmap21_desc
+        )
+
 
 class GeodesicError(nn.Module):
     """

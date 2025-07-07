@@ -12,6 +12,7 @@ from geomfum._registry import (
     register_mesh_plotter,
     register_poisson_sampler,
     register_sinkhorn_neighbor_finder,
+    register_softmax_neighbor_finder,
     register_wave_kernel_signature,
 )
 from geomfum._utils import has_package
@@ -100,4 +101,11 @@ register_sinkhorn_neighbor_finder(
 
 register_heat_distance_metric(
     "pp3d", "Pp3dHeatDistanceMetric", requires="potpourri3d", as_default=True
+)
+
+register_softmax_neighbor_finder(
+    "densemaps",
+    "DenseMapsSoftmaxNeighborFinder",
+    requires="densemaps",
+    as_default=False,
 )

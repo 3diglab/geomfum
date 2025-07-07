@@ -5,12 +5,14 @@ import abc
 import geomstats.backend as gs
 import scipy
 import torch
+import torch.nn as nn
 from sklearn.neighbors import NearestNeighbors
 
 import geomfum.backend as xgs
 import geomfum.wrap as _wrap  # noqa (for register)
 from geomfum._registry import (
     SinkhornNeighborFinderRegistry,
+    SoftmaxNeighborFinderRegistry,
     WhichRegistryMixins,
 )
 from geomfum.neural_adjoint_map import NeuralAdjointMap
@@ -91,7 +93,7 @@ class P2pFromFmConverter(BaseP2pFromFmConverter):
             xgs.to_device(emb2, "cpu"), return_distance=False
         )
 
-        return gs.from_numpy(p2p_21[:, 0])
+        return gs.from_numpy(p2p_21.flatten())
 
 
 class BaseNeighborFinder(abc.ABC):
@@ -138,6 +140,64 @@ class BaseNeighborFinder(abc.ABC):
         indices : array-like, shape=[n_points_y, n_neighbors]
             Indices of the nearest neighbors.
         """
+
+
+class SoftmaxNeighborFinder(BaseNeighborFinder, nn.Module, WhichRegistryMixins):
+    """Softmax neighbor finder.
+
+    Finds neighbors using softmax regularization.
+
+    Parameters
+    ----------
+    n_neighbors : int
+        Number of neighbors.
+    tau : float
+        Temperature parameter for softmax regularization.
+    """
+
+    _Registry = SoftmaxNeighborFinderRegistry
+
+    def __init__(self, n_neighbors=1, tau=0.07):
+        BaseNeighborFinder.__init__(self, n_neighbors=n_neighbors)
+        nn.Module.__init__(self)
+        self.tau = tau
+
+    def fit(self, X, y=None):
+        """Store the reference points."""
+        self.X = X
+        return self
+
+    def kneighbors(self, Y, return_distance=True):
+        """Find k nearest neighbors using softmax regularization."""
+        P = self.forward(self.X, Y)
+        indices = P.argmax(dim=-1)[:, None]
+        if return_distance:
+            return gs.linalg.norm(Y - P @ self.X, -1), indices
+        return indices
+
+    def forward(self, X, Y):
+        """Compute the permutation matrix P as a softmax of the similarity.
+
+        Parameters
+        ----------
+        X : array-like, shape=[n_points_x, n_features]
+            Reference points.
+        Y : array-like, shape=[n_points_y, n_features]
+            Query points.
+
+        Returns
+        -------
+        P : array-like, shape=[n_points_y, n_points_x]
+            Permutation matrix, where each row sums to 1.
+        """
+        similarity = torch.mm(Y, X.T)
+
+        P = torch.exp(
+            similarity / self.tau
+            - torch.logsumexp(similarity / self.tau, dim=-1, keepdim=True)
+        )
+
+        return P
 
 
 class SinkhornNeighborFinder(WhichRegistryMixins):
