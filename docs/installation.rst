@@ -1,16 +1,311 @@
 Installation
 ============
 
-To install GeomFuM, run:
+This page provides detailed installation instructions for GeomFuM.
+
+Quick Installation
+------------------
+
+Install GeomFuM directly from GitHub:
 
 .. code-block:: bash
 
-   pip install geomfum@git+https://github.com/DiG-AIR/geomfum.git@main
+    pip install geomfum@git+https://github.com/DiG-AIR/geomfum.git@main
 
-Or clone the repository and install:
+For development installation with all dependencies:
 
 .. code-block:: bash
 
-   git clone https://github.com/DiG-AIR/geomfum.git
-   cd geomfum
-   pip install .
+    pip install geomfum[opt]@git+https://github.com/DiG-AIR/geomfum.git@main
+
+Prerequisites
+-------------
+
+System Requirements
+~~~~~~~~~~~~~~~~~~~
+
+- **Python**: 3.9 or higher
+- **Operating System**: Linux, macOS, or Windows
+- **Memory**: At least 4GB RAM (8GB+ recommended for large meshes)
+- **Storage**: 2GB+ free space
+
+Required Dependencies
+~~~~~~~~~~~~~~~~~~~~~
+
+Core dependencies (installed automatically):
+
+- `numpy` - Numerical computing
+- `scipy` - Scientific computing
+- `scikit-learn` - Machine learning utilities
+- `meshio` - Mesh I/O
+- `pyfmaps` - Functional maps implementation
+- `torch` - Deep learning (PyTorch backend)
+- `geomstats` - Geometric statistics
+
+Optional Dependencies
+---------------------
+
+Install specific optional dependencies based on your needs:
+
+Laplacian Computation
+~~~~~~~~~~~~~~~~~~~~~
+
+For robust Laplacian computation:
+
+.. code-block:: bash
+
+    pip install geomfum[lapl]
+
+This installs:
+- `robust-laplacian` - Robust Laplacian computation
+- `libigl` - Geometric processing library
+
+Metric Computation
+~~~~~~~~~~~~~~~~~~
+
+For advanced metric computations:
+
+.. code-block:: bash
+
+    pip install geomfum[metric]
+
+This installs:
+- `networkx` - Graph algorithms
+- `potpourri3d` - 3D geometry processing
+
+Sampling Tools
+~~~~~~~~~~~~~~
+
+For mesh sampling utilities:
+
+.. code-block:: bash
+
+    pip install geomfum[sampling]
+
+This installs:
+- `pymeshlab` - MeshLab Python bindings
+
+Rematching Algorithm
+~~~~~~~~~~~~~~~~~~~
+
+For the Rematching algorithm:
+
+.. code-block:: bash
+
+    pip install geomfum[rematching]
+
+This installs:
+- `Rematching` - Low-resolution shape correspondence
+
+Sinkhorn Filtering
+~~~~~~~~~~~~~~~~~~
+
+For optimal transport-based refinement:
+
+.. code-block:: bash
+
+    pip install geomfum[sinkhorn]
+
+This installs:
+- `POT` - Python Optimal Transport
+
+Visualization
+~~~~~~~~~~~~~
+
+For visualization capabilities:
+
+.. code-block:: bash
+
+    # Plotly-based visualization
+    pip install geomfum[plotly]
+    
+    # PyVista-based visualization
+    pip install geomfum[pyvista]
+    
+    # Polyscope-based visualization
+    pip install geomfum[polyscope]
+    
+    # All visualization backends
+    pip install geomfum[plotting-all]
+
+Testing and Development
+~~~~~~~~~~~~~~~~~~~~~~~
+
+For development and testing:
+
+.. code-block:: bash
+
+    pip install geomfum[test]
+
+This installs:
+- `pytest` - Testing framework
+- `polpo` - Geometric processing utilities
+- All optional dependencies
+- Testing scripts and notebooks
+
+Complete Installation
+~~~~~~~~~~~~~~~~~~~~~
+
+Install everything:
+
+.. code-block:: bash
+
+    pip install geomfum[opt,test-scripts,plotting-all]@git+https://github.com/DiG-AIR/geomfum.git@main
+
+Backend Configuration
+---------------------
+
+GeomFuM supports multiple backends for numerical computations:
+
+NumPy Backend (Default)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The NumPy backend is used by default and provides good performance for most use cases:
+
+.. code-block:: python
+
+    import os
+    os.environ["GEOMSTATS_BACKEND"] = "numpy"
+    import geomfum as gfm
+
+PyTorch Backend
+~~~~~~~~~~~~~~~
+
+Use PyTorch backend for GPU acceleration and deep learning:
+
+.. code-block:: python
+
+    import os
+    os.environ["GEOMSTATS_BACKEND"] = "pytorch"
+    import geomfum as gfm
+
+Check Current Backend
+~~~~~~~~~~~~~~~~~~~~
+
+Verify which backend is currently active:
+
+.. code-block:: python
+
+    import geomstats.backend as gs
+    print(f"Current backend: {gs.__name__}")
+
+Troubleshooting
+---------------
+
+Common Installation Issues
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+C++ Dependencies
+^^^^^^^^^^^^^^^^
+
+Some dependencies require C++ compilation. If you encounter issues:
+
+1. **Install build tools**:
+   - **Linux**: `sudo apt-get install build-essential`
+   - **macOS**: Install Xcode Command Line Tools
+   - **Windows**: Install Visual Studio Build Tools
+
+2. **Install specific C++ libraries**:
+   - **Linux**: `sudo apt-get install libeigen3-dev`
+   - **macOS**: `brew install eigen`
+
+PyRMT Installation
+^^^^^^^^^^^^^^^^^^
+
+For the Rematching algorithm, follow the specific instructions:
+
+.. code-block:: bash
+
+    # Clone and install PyRMT
+    git clone https://github.com/filthynobleman/rematching.git
+    cd rematching
+    git checkout python-binding
+    pip install -e .
+
+Memory Issues
+^^^^^^^^^^^^
+
+For large meshes, you may encounter memory issues:
+
+1. **Use sparse matrices**:
+   .. code-block:: python
+
+       L = gfm.laplacian.matrix(mesh, sparse=True)
+
+2. **Reduce eigenfunction count**:
+   .. code-block:: python
+
+       eigenfunctions, eigenvalues = gfm.laplacian.spectrum(mesh, k=20)
+
+3. **Use sampling**:
+   .. code-block:: python
+
+       sampled_mesh = gfm.sample.uniform(mesh, n_points=1000)
+
+Performance Optimization
+-----------------------
+
+GPU Acceleration
+~~~~~~~~~~~~~~~~
+
+For GPU acceleration with PyTorch backend:
+
+.. code-block:: python
+
+    import torch
+    
+    # Check GPU availability
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+    
+    # Move data to GPU
+    mesh_gpu = mesh.to(device)
+
+Parallel Processing
+~~~~~~~~~~~~~~~~~~
+
+For processing multiple shapes:
+
+.. code-block:: python
+
+    import multiprocessing as mp
+    
+    def process_shape(mesh):
+        # Process single shape
+        return gfm.laplacian.spectrum(mesh, k=50)
+    
+    # Parallel processing
+    with mp.Pool(processes=4) as pool:
+        results = pool.map(process_shape, mesh_list)
+
+Verification
+------------
+
+Test your installation:
+
+.. code-block:: python
+
+    import geomfum as gfm
+    import numpy as np
+    
+    # Create a simple test mesh
+    vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]])
+    faces = np.array([[0, 1, 2]])
+    
+    # Test basic functionality
+    mesh = gfm.shape.Mesh(vertices, faces)
+    eigenfunctions, eigenvalues = gfm.laplacian.spectrum(mesh, k=3)
+    
+    print("Installation successful!")
+    print(f"Computed {eigenfunctions.shape[1]} eigenfunctions")
+
+Next Steps
+----------
+
+After installation, explore:
+
+1. :doc:`getting_started` - Quick start guide
+2. :doc:`functional_maps_basics` - Basic functional maps tutorial
+3. :doc:`../api/index` - API reference
+
+For issues and questions, visit our `GitHub repository <https://github.com/DiG-AIR/geomfum>`_ or join our `Discord server <https://discord.gg/6sYmEbUp>`_.

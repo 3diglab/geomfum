@@ -20,6 +20,8 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_gallery.load_style",
+    "sphinx_copybutton",
+    "sphinx_design",
 ]
 
 autosummary_generate = True
@@ -37,16 +39,12 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
-nbsphinx_execute = "never"
+nbsphinx_execute = "never"  # Don't execute notebooks during build
 nbsphinx_input_prompt = " In [%s]:"
 nbsphinx_output_prompt = " Out [%s]:"
 nbsphinx_allow_errors = True
 
-templates_path = ["_templates"]
-source_suffix = [".rst"]
-main_doc = "index"
-language = "en"
-
+# Notebook paths
 nbsphinx_prolog = (
     r"""
 {% set docname = env.doc2path(env.docname, base=None) %}
@@ -73,7 +71,21 @@ nbsphinx_prolog = (
 
 nbsphinx_thumbnails = {}
 
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
+# Include notebooks directory
+templates_path = ["_templates"]
+source_suffix = [".rst", ".ipynb"]
+main_doc = "index"
+language = "en"
+
+exclude_patterns = [
+    "_build", 
+    "Thumbs.db", 
+    ".DS_Store", 
+    "**.ipynb_checkpoints",
+    "notebooks/.ipynb_checkpoints",
+    "notebooks/*/.ipynb_checkpoints"
+]
+
 pygments_style = None
 
 html_theme = "pydata_sphinx_theme"
@@ -83,6 +95,29 @@ html_static_path = ["_static"]
 html_baseurl = "geomfum.github.io"
 htmlhelp_basename = "geomfumdoc"
 html_last_updated_fmt = "%c"
+
+# GitHub context for edit page button
+html_context = {
+    "github_user": "DiG-AIR",
+    "github_repo": "geomfum",
+    "github_version": "main",
+    "doc_path": "docs",
+}
+
+# PyData theme options
+html_theme_options = {
+    "github_url": "https://github.com/DiG-AIR/geomfum",
+    "use_edit_page_button": True,
+    "show_toc_level": 2,
+    "navbar_end": ["navbar-icon-links"],
+    "icon_links": [
+        {
+            "name": "Discord",
+            "url": "https://discord.gg/6sYmEbUp",
+            "icon": "fab fa-discord",
+        },
+    ],
+}
 
 latex_elements = {}
 latex_documents = [
