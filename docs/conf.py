@@ -83,7 +83,8 @@ exclude_patterns = [
     ".DS_Store", 
     "**.ipynb_checkpoints",
     "notebooks/.ipynb_checkpoints",
-    "notebooks/*/.ipynb_checkpoints"
+    "notebooks/*/.ipynb_checkpoints",
+    "notebooks/demos/**",  # Exclude demos to avoid large files
 ]
 
 pygments_style = None
