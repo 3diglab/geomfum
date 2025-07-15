@@ -91,6 +91,7 @@ pygments_style = None
 
 html_theme = "pydata_sphinx_theme"
 html_logo = "../GeomFuMlogo.png"
+html_favicon = "../GeomFuMlogo_only.png"
 html_static_path = ["_static"]
 html_baseurl = "geomfum.github.io"
 htmlhelp_basename = "geomfumdoc"
@@ -106,10 +107,11 @@ html_context = {
 
 # PyData theme options
 html_theme_options = {
+    
     "github_url": "https://github.com/DiG-AIR/geomfum",
     "use_edit_page_button": False,
     "show_toc_level": 2,
-    "navbar_end": ["navbar-icon-links"],
+    "navbar_end": ["theme-switcher", "navbar-icon-links"],
     "icon_links": [
         {
             "name": "Discord",
