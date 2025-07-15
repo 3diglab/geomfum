@@ -27,7 +27,6 @@ System Requirements
 - **Python**: 3.9 or higher
 - **Operating System**: Linux, macOS, or Windows
 - **Memory**: At least 4GB RAM (8GB+ recommended for large meshes)
-- **Storage**: 2GB+ free space
 
 Required Dependencies
 ~~~~~~~~~~~~~~~~~~~~~
@@ -86,7 +85,7 @@ This installs:
 - `pymeshlab` - MeshLab Python bindings
 
 Rematching Algorithm
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 For the Rematching algorithm:
 
@@ -180,7 +179,7 @@ Use PyTorch backend for GPU acceleration and deep learning:
     import geomfum as gfm
 
 Check Current Backend
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 Verify which backend is currently active:
 
@@ -223,7 +222,7 @@ For the Rematching algorithm, follow the specific instructions:
     pip install -e .
 
 Memory Issues
-^^^^^^^^^^^^
+~~~~~~~~~~~~~
 
 For large meshes, you may encounter memory issues:
 
@@ -243,7 +242,7 @@ For large meshes, you may encounter memory issues:
        sampled_mesh = gfm.sample.uniform(mesh, n_points=1000)
 
 Performance Optimization
------------------------
+------------------------
 
 GPU Acceleration
 ~~~~~~~~~~~~~~~~
@@ -262,7 +261,7 @@ For GPU acceleration with PyTorch backend:
     mesh_gpu = mesh.to(device)
 
 Parallel Processing
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 For processing multiple shapes:
 

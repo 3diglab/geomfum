@@ -4,7 +4,7 @@ Notebook Tutorials
 This section contains all the Jupyter notebook tutorials for GeomFuM. These notebooks provide hands-on examples and step-by-step guides for using the library.
 
 Getting Started
---------------
+---------------
 
 .. toctree::
    :maxdepth: 1
@@ -17,7 +17,7 @@ Getting Started
    how_to/04_descriptor_pipeline
 
 Functional Maps
---------------
+---------------
 
 .. toctree::
    :maxdepth: 1
@@ -30,7 +30,7 @@ Functional Maps
    how_to/15_refine_functional_map
 
 Advanced Techniques
-------------------
+-------------------
 
 .. toctree::
    :maxdepth: 1
@@ -44,7 +44,7 @@ Advanced Techniques
    how_to/sampler
 
 Deep Learning
-------------
+-------------
 
 .. toctree::
    :maxdepth: 1
@@ -54,7 +54,7 @@ Deep Learning
    how_to/18_neural_adjoint_maps
 
 Visualization
-------------
+-------------  
 
 .. toctree::
    :maxdepth: 1

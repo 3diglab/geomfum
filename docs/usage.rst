@@ -8,9 +8,9 @@ Quick Start
 
 The best way to learn GeomFuM is through our interactive notebook tutorials. Start with:
 
-- **Loading Meshes** - :doc:`notebooks/how_to/00_load_mesh_from_file`
-- **Laplace-Beltrami Operator** - :doc:`notebooks/how_to/01_mesh_laplacian`
-- **Functional Maps** - :doc:`notebooks/how_to/07_functional_map`
+- **Loading Meshes** - :doc:`notebooks/how_to/00_load_mesh_from_file.ipynb`
+- **Laplace-Beltrami Operator** - :doc:`notebooks/how_to/01_mesh_laplacian.ipynb`
+- **Functional Maps** - :doc:`notebooks/how_to/07_functional_map.ipynb`
 
 Basic Usage Examples
 -------------------
@@ -20,12 +20,12 @@ Here are some key code snippets from our tutorials:
 Loading and Working with Meshes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-From :doc:`notebooks/how_to/00_load_mesh_from_file`:
+From :doc:`notebooks/how_to/00_load_mesh_from_file.ipynb`:
 
 .. code-block:: python
 
     from geomfum.dataset import NotebooksDataset
-    from geomfum.shape import TriangleMesh, PointCloud
+    from geomfum.shape import TriangleMesh
     
     # Load a mesh
     dataset = NotebooksDataset()
@@ -36,7 +36,7 @@ From :doc:`notebooks/how_to/00_load_mesh_from_file`:
 Computing Laplace-Beltrami Spectrum
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-From :doc:`notebooks/how_to/02_mesh_laplacian_spectrum`:
+From :doc:`notebooks/how_to/02_mesh_laplacian_spectrum.ipynb`:
 
 .. code-block:: python
 
@@ -44,41 +44,42 @@ From :doc:`notebooks/how_to/02_mesh_laplacian_spectrum`:
     mesh.laplacian.find_spectrum(spectrum_size=50, set_as_basis=True)
     
     # Access the basis
-    eigenfunctions = mesh.basis.eigenfunctions
-    eigenvalues = mesh.basis.eigenvalues
+    eigenfunctions = mesh.basis.vecs
+    eigenvalues = mesh.basis.vals
     
     print(f"Computed {len(eigenvalues)} eigenfunctions")
 
 Computing Shape Descriptors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-From :doc:`notebooks/how_to/03_descriptors`:
+From :doc:`notebooks/how_to/03_descriptors.ipynb`:
 
 .. code-block:: python
 
     from geomfum.descriptor.spectral import HeatKernelSignature, WaveKernelSignature
     
     # Heat Kernel Signature
-    hks = HeatKernelSignature.from_registry(n_domain=4)
-    hks_descriptors = hks.apply(mesh)
+    hks = HeatKernelSignature(n_domain=4)
+    hks_descriptors = hks(mesh)
     
     # Wave Kernel Signature
-    wks = WaveKernelSignature.from_registry(n_domain=3)
-    wks_descriptors = wks.apply(mesh)
+    wks = WaveKernelSignature(n_domain=3)
+    wks_descriptors = wks(mesh)
 
 Creating Descriptor Pipelines
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-From :doc:`notebooks/how_to/04_descriptor_pipeline`:
+From :doc:`notebooks/how_to/04_descriptor_pipeline.ipynb`:
 
 .. code-block:: python
-
+    from geomfum.descriptor.spectral import HeatKernelSignature, LandmarkHeatKernelSignature
     from geomfum.descriptor.pipeline import DescriptorPipeline, ArangeSubsampler, L2InnerNormalizer
     
     steps = [
-        HeatKernelSignature.from_registry(n_domain=4),
+        HeatKernelSignature(n_domain=4),
+        LandmarkHeatKernelSignature(n_domain=4),
         ArangeSubsampler(subsample_step=2),
-        WaveKernelSignature.from_registry(n_domain=3),
+        WaveKernelSignature(n_domain=3),
         L2InnerNormalizer(),
     ]
     
@@ -88,14 +89,11 @@ From :doc:`notebooks/how_to/04_descriptor_pipeline`:
 Computing Functional Maps
 ------------------------
 
-From :doc:`notebooks/how_to/07_functional_map`:
+From :doc:`notebooks/how_to/07_functional_map.ipynb`:
 
 .. code-block:: python
 
-    from geomfum.functional_map import (
-        FactorSum, LBCommutativityEnforcing, 
-        SpectralDescriptorPreservation, OperatorCommutativityEnforcing
-    )
+    from geomfum.functional_map import FactorSum, LBCommutativityEnforcing, SpectralDescriptorPreservation
     from geomfum.numerics.optimization import ScipyMinimize
     
     # Set up basis for both meshes
@@ -129,116 +127,83 @@ From :doc:`notebooks/how_to/07_functional_map`:
 Converting to Pointwise Correspondences
 --------------------------------------
 
-From :doc:`notebooks/how_to/10_pointwise_from_functional`:
+From :doc:`notebooks/how_to/10_pointwise_from_functional.ipynb`:
 
 .. code-block:: python
 
-    # Convert functional map to pointwise correspondences
-    correspondences = mesh_a.basis.pointwise_from_functional(fmap, mesh_b.basis)
+    from geomfum.convert import P2pFromFmConverter
+
+    converter = P2pFromFmConverter()
+    correspondences = converter(fmap, mesh_a, mesh_b)
     
     print(f"Computed {len(correspondences)} correspondences")
 
 Refining Functional Maps
 -----------------------
 
-From :doc:`notebooks/how_to/15_refine_functional_map`:
+From :doc:`notebooks/how_to/15_refine_functional_map.ipynb`:
 
 .. code-block:: python
 
-    from geomfum.refine import ZoomOut
+    from geomfum.refine import ZoomOutRefiner
     
     # Apply ZoomOut refinement
-    zoomout = ZoomOut()
-    refined_fmap = zoomout.apply(fmap, mesh_a, mesh_b)
+    zoomout = ZoomOutRefiner()
+    refined_fmap = zoomout(fmap, mesh_a, mesh_b)
     
     # Convert refined map to correspondences
-    refined_correspondences = mesh_a.basis.pointwise_from_functional(refined_fmap, mesh_b.basis)
+    refined_correspondences = converter(refined_fmap, mesh_a, mesh_b)
 
 Advanced Techniques
 ------------------
 
-Landmark-Based Functional Maps
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-From :doc:`notebooks/how_to/06_landmarks`:
-
-.. code-block:: python
-
-    # Define landmark correspondences
-    landmarks_a = [0, 10, 20]  # Vertex indices on mesh_a
-    landmarks_b = [5, 15, 25]  # Corresponding vertices on mesh_b
-    
-    # Create landmark-based functional map
-    landmark_fmap = create_landmark_functional_map(
-        mesh_a, mesh_b, landmarks_a, landmarks_b
-    )
-
-Hierarchical Meshes
-~~~~~~~~~~~~~~~~~~
-
-From :doc:`notebooks/how_to/11_hierarchical_mesh`:
-
-.. code-block:: python
-
-    from geomfum.shape import HierarchicalMesh
-    
-    # Create hierarchical mesh
-    hierarchical_mesh = HierarchicalMesh(mesh, levels=3)
-    
-    # Work with different levels
-    for level in range(hierarchical_mesh.num_levels):
-        level_mesh = hierarchical_mesh.get_level(level)
-        # Process each level...
 
 Rematching Algorithm
 ~~~~~~~~~~~~~~~~~~~
 
-From :doc:`notebooks/how_to/13_rematching`:
+From :doc:`notebooks/how_to/13_rematching.ipynb`:
 
 .. code-block:: python
 
-    from geomfum.rematching import Rematching
-    
+    from geomfum.shape.hierarchical import HierarchicalMesh    
     # Apply Rematching
-    rematching = Rematching()
-    rematched_fmap = rematching.apply(fmap, mesh_a, mesh_b)
+    hmesh_a = HierarchicalMesh.from_registry(mesh_a, min_n_samples=1000)
 
-Deep Learning Integration
-------------------------
+    hmesh_a.low.n_vertices, hmesh_a.low.n_faces
+
 
 Deep Functional Maps
 ~~~~~~~~~~~~~~~~~~~
 
-From :doc:`notebooks/how_to/14_deep_functional_maps_models`:
+From :doc:`notebooks/how_to/14_deep_functional_maps_models.ipynb`:
 
 .. code-block:: python
 
-    from geomfum.learning import DeepFunctionalMaps
-    
-    # Create deep functional maps model
-    model = DeepFunctionalMaps(feature_dim=128)
-    
-    # Extract deep features
-    features_a = model.extract_features(mesh_a)
-    features_b = model.extract_features(mesh_b)
-    
-    # Compute functional map with deep features
-    deep_fmap = compute_functional_map(features_a, features_b)
+    from geomfum.descriptor.learned import FeatureExtractor
+    from geomfum.forward_functional_map import ForwardFunctionalMap
+    from geomfum.learning.models import FMNet
+
+    functional_map_model = FMNet(
+    feature_extractor=FeatureExtractor.from_registry(which="diffusionnet"))
+
+    with torch.no_grad():
+        output = functional_map_model(mesh_a, mesh_b, as_dict=True)
+    fmap12, fmap21 = output["fmap12"], output["fmap21"]
 
 Neural Adjoint Maps
 ~~~~~~~~~~~~~~~~~~
 
-From :doc:`notebooks/how_to/18_neural_adjoint_maps`:
+From :doc:`notebooks/how_to/18_neural_adjoint_maps.ipynb`:
 
 .. code-block:: python
 
-    from geomfum.learning import NeuralAdjointMap
-    
-    # Create neural adjoint map model
-    model = NeuralAdjointMap()
-    
-    # Compute correspondences
-    correspondences = model(mesh_a, mesh_b)
+    from geomfum.convert import NamFromP2pConverter
+
+    mesh_a.basis.use_k = 10
+    mesh_b.basis.use_k = 10
+    nam_converter = NamFromP2pConverter(device="cpu")
+
+    nam = nam_converter(p2p, mesh_a.basis, mesh_b.basis)
 
 Visualization
 -------------
@@ -246,57 +211,16 @@ Visualization
 Basic Visualization
 ~~~~~~~~~~~~~~~~~~
 
-From :doc:`notebooks/how_to/16_vis_basic`:
+From :doc:`notebooks/how_to/16_vis_basic.ipynb`:
 
 .. code-block:: python
 
-    # Visualize meshes and correspondences
-    plot_mesh(mesh_a, title="Mesh A")
-    plot_mesh(mesh_b, title="Mesh B")
-    plot_correspondences(mesh_a, mesh_b, correspondences[:100])
+    from geomfum.plot import MeshPlotter
 
-Distance Visualization
-~~~~~~~~~~~~~~~~~~~~~
+    plotter = MeshPlotter()
+    plotter.add_mesh(mesh_a)
+    plotter.show()
 
-From :doc:`notebooks/how_to/17_vis_dist`:
-
-.. code-block:: python
-
-    # Visualize geodesic distances and errors
-    plot_geodesic_distances(mesh, distances)
-    plot_correspondence_errors(mesh_a, mesh_b, correspondences, ground_truth)
-
-Complete Pipeline Example
-------------------------
-
-Here's a complete example combining multiple techniques:
-
-.. code-block:: python
-
-    # 1. Load meshes
-    mesh_a = TriangleMesh.from_file(dataset.get_filename("cat-00"))
-    mesh_b = TriangleMesh.from_file(dataset.get_filename("lion-00"))
-    
-    # 2. Set up basis
-    mesh_a.laplacian.find_spectrum(spectrum_size=50, set_as_basis=True)
-    mesh_b.laplacian.find_spectrum(spectrum_size=50, set_as_basis=True)
-    
-    # 3. Compute descriptors
-    pipeline = create_descriptor_pipeline()
-    descr_a = pipeline.apply(mesh_a)
-    descr_b = pipeline.apply(mesh_b)
-    
-    # 4. Compute functional map
-    fmap = compute_functional_map(descr_a, descr_b, mesh_a, mesh_b)
-    
-    # 5. Refine
-    refined_fmap = ZoomOut().apply(fmap, mesh_a, mesh_b)
-    
-    # 6. Convert to correspondences
-    correspondences = mesh_a.basis.pointwise_from_functional(refined_fmap, mesh_b.basis)
-    
-    # 7. Visualize
-    plot_correspondences(mesh_a, mesh_b, correspondences[:100])
 
 Interactive Learning
 -------------------

@@ -1,5 +1,5 @@
-Contributing to GeomFuM
-=======================
+Contributing
+============
 
 We welcome contributions from the community! This guide will help you get started with contributing to GeomFuM.
 
@@ -15,7 +15,7 @@ Development Setup
 2. **Clone your fork**:
    .. code-block:: bash
 
-       git clone https://github.com/YOUR_USERNAME/geomfum.git
+       git clone https://github.com/<your-username>/geomfum.git
        cd geomfum
 
 3. **Install in development mode**:
@@ -64,38 +64,6 @@ We use `ruff` for code formatting and linting:
     # Fix issues automatically
     ruff check --fix .
 
-Type Hints
-~~~~~~~~~~
-
-We use type hints throughout the codebase:
-
-.. code-block:: python
-
-    from typing import Optional, Tuple, List
-    import numpy as np
-    
-    def compute_functional_map(
-        mesh1: Mesh,
-        mesh2: Mesh,
-        descriptors1: np.ndarray,
-        descriptors2: np.ndarray,
-        k: int = 50
-    ) -> np.ndarray:
-        """Compute functional map between two shapes.
-        
-        Args:
-            mesh1: First mesh
-            mesh2: Second mesh
-            descriptors1: Descriptors for first mesh
-            descriptors2: Descriptors for second mesh
-            k: Number of eigenfunctions to use
-            
-        Returns:
-            Functional map matrix
-        """
-        # Implementation here
-        pass
-
 Documentation
 ~~~~~~~~~~~~~
 
@@ -103,7 +71,7 @@ We use NumPy docstring format:
 
 .. code-block:: python
 
-    def laplacian_spectrum(mesh: Mesh, k: int = 50) -> Tuple[np.ndarray, np.ndarray]:
+    def laplacian_spectrum(mesh, k=50):
         """Compute Laplace-Beltrami eigenfunctions and eigenvalues.
         
         Parameters
@@ -129,29 +97,17 @@ We use NumPy docstring format:
 Testing
 -------
 
-Running Tests
-~~~~~~~~~~~~~
-
 Run the test suite:
-
 .. code-block:: bash
 
     # Run all tests
     pytest
     
     # Run specific test file
-    pytest tests/test_functional_map.py
-    
-    # Run with coverage
-    pytest --cov=geomfum
-    
-    # Run specific test categories
-    pytest -m "smoke"  # Simple tests
-    pytest -m "random"  # Randomized tests
-    pytest -m "validation"  # Validation tests
-
+    pytest tests/test_laplacian.py
+        
 Writing Tests
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 Follow these guidelines for writing tests:
 
@@ -173,44 +129,17 @@ Follow these guidelines for writing tests:
            assert result.shape == (50, 50)
            assert np.all(np.isfinite(result))
 
-2. **Test categories**:
-   - `@pytest.mark.smoke`: Simple and basic numerical tests
-   - `@pytest.mark.random`: Tests that use randomized data
-   - `@pytest.mark.validation`: Not smoke, neither random
-   - `@pytest.mark.slow`: For slow tests
 
-3. **Fixtures**:
-   .. code-block:: python
-
-       @pytest.fixture
-       def sample_mesh():
-           """Create a sample mesh for testing."""
-           vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]])
-           faces = np.array([[0, 1, 2]])
-           return gfm.shape.Mesh(vertices, faces)
 
 Documentation
 -------------
 
-Building Documentation
-~~~~~~~~~~~~~~~~~~~~~
-
-Build the documentation locally:
-
-.. code-block:: bash
-
-    # Install documentation dependencies
-    pip install -r docs/requirements.txt
-    
-    # Build documentation
-    cd docs
-    make html
-    
-    # View documentation
-    open _build/html/index.html
+The documentation is written in `rst` format and is located in the `docs/` directory.
+The documentation is built using `sphinx` and is located in `https://DiG-AIR.github.io/geomfum.github.io/` directory.
+The documentation is viewable in a web browser.
 
 Writing Documentation
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 1. **API Documentation**: Add docstrings to all public functions
 2. **Tutorials**: Create Jupyter notebooks in `notebooks/`
@@ -255,7 +184,7 @@ Example docstring:
         pass
 
 Pull Request Process
--------------------
+--------------------
 
 1. **Create a feature branch**:
    .. code-block:: bash
@@ -306,7 +235,7 @@ Code Review
 -----------
 
 Review Process
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 1. **Automated checks** must pass:
    - Tests
@@ -374,7 +303,7 @@ Testing
 - Documentation tests
 
 Tools and Utilities
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 - Visualization tools
 - Data processing utilities
@@ -382,7 +311,7 @@ Tools and Utilities
 - Benchmarking tools
 
 Getting Help
------------
+------------
 
 If you need help:
 
@@ -392,7 +321,7 @@ If you need help:
 4. **Ask questions**: In GitHub Discussions
 
 Community Guidelines
--------------------
+--------------------
 
 We are committed to providing a welcoming and inclusive environment:
 

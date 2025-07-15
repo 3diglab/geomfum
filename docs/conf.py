@@ -5,7 +5,7 @@ import geomfum
 project = "GeomFuM"
 copyright = "2025, GeomFuM contributors"
 author = "GeomFuM Team"
-release = version = getattr(geomfum, "__version__", "0.0.1")
+release = version = getattr(geomfum, "__version__", "latest")
 html_static_path = ["_static"]
 extensions = [
     "nbsphinx",
@@ -73,7 +73,7 @@ nbsphinx_thumbnails = {}
 
 # Include notebooks directory
 templates_path = ["_templates"]
-source_suffix = [".rst", ".ipynb"]
+source_suffix = [".rst"]
 main_doc = "index"
 language = "en"
 
@@ -90,8 +90,7 @@ exclude_patterns = [
 pygments_style = None
 
 html_theme = "pydata_sphinx_theme"
-html_logo = "GeomFuMlogo.png"
-html_favicon = "GeomFuMlogo_only.png"
+html_logo = "../GeomFuMlogo.png"
 html_static_path = ["_static"]
 html_baseurl = "geomfum.github.io"
 htmlhelp_basename = "geomfumdoc"
@@ -108,7 +107,7 @@ html_context = {
 # PyData theme options
 html_theme_options = {
     "github_url": "https://github.com/DiG-AIR/geomfum",
-    "use_edit_page_button": True,
+    "use_edit_page_button": False,
     "show_toc_level": 2,
     "navbar_end": ["navbar-icon-links"],
     "icon_links": [
@@ -156,4 +155,4 @@ intersphinx_mapping = {
     "sklearn": ("https://scikit-learn.org/stable", None),
     "torch": ("https://pytorch.org/docs/stable", None),
 }
-intersphinx_timeout = 5
+intersphinx_timeout = 6

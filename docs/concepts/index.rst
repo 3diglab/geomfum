@@ -1,4 +1,4 @@
-Core Concepts
+Concepts
 =============
 
 This section covers the fundamental concepts and theoretical foundations of GeomFuM.
@@ -6,8 +6,6 @@ This section covers the fundamental concepts and theoretical foundations of Geom
 .. toctree::
    :maxdepth: 2
 
-   functional_maps
-   shape_analysis
    correspondence
-
-
+   functional_maps
+   

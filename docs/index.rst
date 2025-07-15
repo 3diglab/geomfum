@@ -1,7 +1,3 @@
-.. image:: GeomFuMlogo.png
-   :width: 800
-   :alt: GeomFuM logo
-
 Welcome to GeomFuM
 ==================
 
@@ -21,40 +17,20 @@ Installation
 
     pip install geomfum@git+https://github.com/DiG-AIR/geomfum.git@main
 
+
+Contents
+--------
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Getting Started:
+   :maxdepth: 1
 
    installation
    usage
+   concepts/index
    tutorials/index
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Core Concepts:
-
-   concepts/functional_maps
-   concepts/shape_analysis
-   concepts/correspondence
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Interactive Tutorials:
-
-   notebooks/index
-
-.. toctree::
-   :maxdepth: 2
-   :caption: API Reference:
-
-   api/index
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contributing:
-
    contributing
-
+   api/index
+   
 Indices and tables
 ==================
 
