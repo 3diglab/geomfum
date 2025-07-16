@@ -53,6 +53,10 @@ class SpectralDescriptor(Descriptor, abc.ABC):
         shape : Shape.
             Shape.
         """
+        if self.k is not None:
+            if shape.basis.spectrum_size != self.k:
+                shape.basis.use_k = self.k
+
         vals = shape.basis.vals
         vecs = shape.basis.vecs
 
