@@ -25,6 +25,10 @@ class ShapePlotter(abc.ABC):
     def show(self):
         """Display plot."""
 
+    @abc.abstractmethod
+    def save(self, filename):
+        """Save plot to file."""
+
     def set_vertex_scalars(self, scalars):
         """Set vertex scalars on mesh."""
         raise NotImplementedError("Not implemented for this plotter.")

@@ -46,7 +46,7 @@ test = [
     "polpo@git+https://github.com/geometric-intelligence/polpo.git@main",
     "geomfum[opt,test-scripts,plotting-all]",
 ]
-plotly = ["plotly", "nbformat"]
+plotly = ["plotly", "nbformat", "kaleido"]
 pyvista = ["pyvista", "trame"]
 polyscope = ["polyscope"]
 plotting-all = ["geomfum[plotly,pyvista,polyscope]"]

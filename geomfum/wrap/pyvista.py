@@ -79,3 +79,13 @@ class PvMeshPlotter(ShapePlotter):
         """Display plot."""
         self._add_mesh(self._mesh)
         self._plotter.show()
+
+    def save(self, filename):
+        """Save plot to file.
+
+        Parameters
+        ----------
+        filename : str | Path | io.BytesIO
+            Location to write file to.
+        """
+        self._plotter.screenshot(filename)
