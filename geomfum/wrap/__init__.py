@@ -13,6 +13,7 @@ from geomfum._registry import (
     register_poisson_sampler,
     register_sinkhorn_neighbor_finder,
     register_wave_kernel_signature,
+    register_point_cloud_plotter,
 )
 from geomfum._utils import has_package
 
@@ -85,6 +86,19 @@ register_mesh_plotter("pyvista", "PvMeshPlotter", requires="pyvista", as_default
 register_mesh_plotter(
     "polyscope", "PsMeshPlotter", requires="polyscope", as_default=False
 )
+
+register_point_cloud_plotter(
+    "plotly", "PlotlyPointCloudPlotter", requires="plotly", as_default=True
+)
+
+register_point_cloud_plotter(
+    "pyvista", "PvPointCloudPlotter", requires="pyvista", as_default=False
+)
+
+register_point_cloud_plotter(
+    "polyscope", "PsPointCloudPlotter", requires="polyscope", as_default=False
+)
+
 
 register_feature_extractor(
     "pointnet", "PointnetFeatureExtractor", requires="torch", as_default=False

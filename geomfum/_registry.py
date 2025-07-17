@@ -348,6 +348,10 @@ class MeshPlotterRegistry(Registry):
     MAP = {}
 
 
+class PointCloudPlotterRegistry(Registry):
+    MAP = {}
+
+
 class HeatDistanceMetricRegistry(Registry):
     MAP = {}
 
