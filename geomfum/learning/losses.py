@@ -173,9 +173,9 @@ class LaplacianCommutativityLoss(nn.Module):
         super().__init__()
         self.weight = weight
 
-    required_inputs = ["fmap12", "mesh_a", "mesh_b"]
+    required_inputs = ["fmap12", "shape_a", "shape_b"]
 
-    def forward(self, fmap12, mesh_a, mesh_b):
+    def forward(self, fmap12, shape_a, shape_b):
         """
         Forward pass.
 
@@ -183,10 +183,10 @@ class LaplacianCommutativityLoss(nn.Module):
         ----------
         fmap12 : torch.Tensor
             Functional map tensor from source to target shape, of shape ( spectrum_size_a, spectrum_size_b ).
-        mesh_a : TriangleMesh
-            TriangleMesh object containing source shape information.
-        mesh_b : TriangleMesh
-            TriangleMesh object containing target shape information.
+        shape_a : Shape
+            Shape object containing source shape information.
+        shape_b : Shape
+            Shape object containing target shape information.
 
         Returns
         -------
@@ -195,8 +195,8 @@ class LaplacianCommutativityLoss(nn.Module):
         """
         metric = SquaredFrobeniusLoss()
         return self.weight * metric(
-            torch.einsum("bc,c->bc", fmap12, mesh_a.basis.vals),
-            torch.einsum("b,bc->bc", mesh_b.basis.vals, fmap12),
+            torch.einsum("bc,c->bc", fmap12, shape_a.basis.vals),
+            torch.einsum("b,bc->bc", shape_b.basis.vals, fmap12),
         )
 
 
