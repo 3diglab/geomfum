@@ -9,6 +9,19 @@ Getting Started
 Development Setup
 ~~~~~~~~~~~~~~~~~
 
+The instructions in this section detail the step-by-step
+process on setting up your development environment before
+contribution.
+
+We recommend using  `Git` for source control to allow collaboration. Typical interaction with the project involves using `git` to pull/push code and 
+submitting bugs/feature requests to the `GeomFuM repository <https://github.com/DiG-AIR/geomfum>`_.
+
+Be sure to follow the Git installation and configuration instructions for your
+respective operating system from the 
+`official Git documentation <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_, 
+before you follow along the next section of this documentation.
+
+
 1. **Fork the repository**:
    Visit `https://github.com/DiG-AIR/geomfum` and click "Fork"
 
@@ -21,18 +34,12 @@ Development Setup
 3. **Install in development mode**:
    .. code-block:: bash
 
-       pip install -e ".[test,test-scripts,plotting-all]"
-
-4. **Set up pre-commit hooks**:
-   .. code-block:: bash
-
-       pip install pre-commit
-       pre-commit install
+       pip install -e .[test,,plotting-all]
 
 Development Environment
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-We recommend using a virtual environment:
+We recommend using a virtual environment to manage dependencies:
 
 .. code-block:: bash
 
@@ -41,7 +48,7 @@ We recommend using a virtual environment:
     source geomfum_env/bin/activate  # On Windows: geomfum_env\Scripts\activate
     
     # Install development dependencies
-    pip install -e ".[test,test-scripts,plotting-all]"
+    pip install -e .[test,test-scripts,plotting-all]
 
 Code Style
 ----------
@@ -51,18 +58,7 @@ We follow PEP 8 and use several tools to maintain code quality:
 Formatting
 ~~~~~~~~~~
 
-We use `ruff` for code formatting and linting:
-
-.. code-block:: bash
-
-    # Format code
-    ruff format .
-    
-    # Check for issues
-    ruff check .
-    
-    # Fix issues automatically
-    ruff check --fix .
+We use `ruff` for code formatting and linting. We recommend downloading the extension for your preferred IDE editor.
 
 Documentation
 ~~~~~~~~~~~~~
@@ -129,8 +125,6 @@ Follow these guidelines for writing tests:
            assert result.shape == (50, 50)
            assert np.all(np.isfinite(result))
 
-
-
 Documentation
 -------------
 
@@ -193,22 +187,16 @@ Pull Request Process
 
 2. **Make your changes**:
    - Write code following our style guidelines
-   - Add tests for new functionality
+   - Add tests for new functionality 
    - Update documentation
-   - Update CHANGELOG.md if needed
 
 3. **Run tests and checks**:
    .. code-block:: bash
 
        # Run tests
        pytest
-       
-       # Check code style
-       ruff check .
-       
-       # Build documentation
-       cd docs && make html
 
+       
 4. **Commit your changes**:
    .. code-block:: bash
 
@@ -230,6 +218,13 @@ Pull Request Process
    - Describe your changes clearly
    - Link related issues
    - Request reviews from maintainers
+
+7. **Wait for review**:
+   - Address feedback from maintainers
+   - Make changes as requested
+    - Re-request review when ready
+    - Ensure all checks pass before merging
+    - Merge when approved
 
 Code Review
 -----------
