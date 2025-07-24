@@ -1,47 +1,62 @@
-name: Documentation
+name: "Docs check and Deployment"
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build-docs:
-    runs-on: ubuntu-latest
-    
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.10]
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        cache: 'pip'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r docs/requirements.txt
-        pip install -e ".[test,test-scripts,plotting-all]"
-    
-    - name: Build documentation
-      run: |
-        cd docs
-        sphinx-build -b html . _build/html
-        sphinx-build -b linkcheck . _build/linkcheck
-    
-    - name: Upload documentation artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: documentation
-        path: docs/_build/html/
-    
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/_build/html
-        force_orphan: true 
+      - uses: actions/checkout@v4
+      
+      - name: Build using Python ${{matrix.python-version}}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{matrix.python-version}}
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: docs-${{matrix.os}}-${{matrix.python-version}}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install dependencies [pip]
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install -r docs/requirements.txt
+          pip install -e ".[test,test-scripts,plotting-all]"
+
+      - name: Install Pandoc [apt-get]
+        run: |
+          sudo apt-get -y install pandoc
+
+      - name: Generate Docs [Sphinx]
+        run: |
+          cd docs
+          sphinx-apidoc -f -o api ../geomfum
+          sphinx-build -b html -D version=latest -D release=latest . _build/html
+          sphinx-build -b linkcheck . _build/linkcheck
+
+      - name: Upload documentation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs/_build/html/
+
+      - name: Deployment of Docs
+        uses: JamesIves/github-pages-deploy-action@v4.2.2
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          branch: master
+          folder: docs/_build/html
+          token: ${{ secrets.DOCUMENTATION_KEY }}
+          repository-name: geomfum/geomfum.github.io
+          clean: true
