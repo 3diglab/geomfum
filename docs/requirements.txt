@@ -6,6 +6,7 @@ sphinx-design
 sphinx-gallery
 sphinx-math-dollar
 sphinx-autobuild
+pydata_sphinx_theme
 
 # Notebook support
 nbsphinx
