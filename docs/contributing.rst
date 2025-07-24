@@ -60,73 +60,9 @@ Formatting
 
 We use `ruff` for code formatting and linting. We recommend downloading the extension for your preferred IDE editor.
 
-Documentation
-~~~~~~~~~~~~~
-
-We use NumPy docstring format:
-
-.. code-block:: python
-
-    def laplacian_spectrum(mesh, k=50):
-        """Compute Laplace-Beltrami eigenfunctions and eigenvalues.
-        
-        Parameters
-        ----------
-        mesh : Mesh
-            Input mesh
-        k : int, optional
-            Number of eigenfunctions to compute, by default 50
-            
-        Returns
-        -------
-        eigenfunctions : np.ndarray
-            Eigenfunctions matrix of shape (n_vertices, k)
-        eigenvalues : np.ndarray
-            Eigenvalues array of length k
-            
-        Notes
-        -----
-        The eigenfunctions are computed using the cotangent Laplacian.
-        """
-        pass
-
-Testing
--------
-
-Run the test suite:
-.. code-block:: bash
-
-    # Run all tests
-    pytest
-    
-    # Run specific test file
-    pytest tests/test_laplacian.py
-        
-Writing Tests
-~~~~~~~~~~~~~
-
-Follow these guidelines for writing tests:
-
-1. **Test structure**:
-   .. code-block:: python
-
-       def test_functional_map_basic():
-           """Test basic functional map computation."""
-           # Arrange
-           mesh1 = create_test_mesh()
-           mesh2 = create_test_mesh()
-           descriptors1 = np.random.rand(100, 3)
-           descriptors2 = np.random.rand(100, 3)
-           
-           # Act
-           result = gfm.functional_map(mesh1, mesh2, descriptors1, descriptors2)
-           
-           # Assert
-           assert result.shape == (50, 50)
-           assert np.all(np.isfinite(result))
 
 Documentation
--------------
+~~~~~~~~~~~~~
 
 The documentation is written in `rst` format and is located in the `docs/` directory.
 The documentation is built using `sphinx` and is located in `https://DiG-AIR.github.io/geomfum.github.io/` directory.

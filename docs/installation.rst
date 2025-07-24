@@ -37,9 +37,9 @@ Core dependencies (installed automatically):
 - `scipy` - Scientific computing
 - `scikit-learn` - Machine learning utilities
 - `meshio` - Mesh I/O
-- `pyfmaps` - Functional maps implementation
+- `pyfmaps` - Functional maps in python
 - `torch` - Deep learning (PyTorch backend)
-- `geomstats` - Geometric statistics
+- `geomstats` - Geometric Riemannian statistics
 
 Optional Dependencies
 ---------------------
@@ -126,6 +126,7 @@ For visualization capabilities:
     
     # All visualization backends
     pip install geomfum[plotting-all]
+
 
 Testing and Development
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,82 +222,6 @@ For the Rematching algorithm, follow the specific instructions:
     git checkout python-binding
     pip install -e .
 
-Memory Issues
-~~~~~~~~~~~~~
-
-For large meshes, you may encounter memory issues:
-
-1. **Use sparse matrices**:
-   .. code-block:: python
-
-       L = gfm.laplacian.matrix(mesh, sparse=True)
-
-2. **Reduce eigenfunction count**:
-   .. code-block:: python
-
-       eigenfunctions, eigenvalues = gfm.laplacian.spectrum(mesh, k=20)
-
-3. **Use sampling**:
-   .. code-block:: python
-
-       sampled_mesh = gfm.sample.uniform(mesh, n_points=1000)
-
-Performance Optimization
-------------------------
-
-GPU Acceleration
-~~~~~~~~~~~~~~~~
-
-For GPU acceleration with PyTorch backend:
-
-.. code-block:: python
-
-    import torch
-    
-    # Check GPU availability
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
-    
-    # Move data to GPU
-    mesh_gpu = mesh.to(device)
-
-Parallel Processing
-~~~~~~~~~~~~~~~~~~~
-
-For processing multiple shapes:
-
-.. code-block:: python
-
-    import multiprocessing as mp
-    
-    def process_shape(mesh):
-        # Process single shape
-        return gfm.laplacian.spectrum(mesh, k=50)
-    
-    # Parallel processing
-    with mp.Pool(processes=4) as pool:
-        results = pool.map(process_shape, mesh_list)
-
-Verification
-------------
-
-Test your installation:
-
-.. code-block:: python
-
-    import geomfum as gfm
-    import numpy as np
-    
-    # Create a simple test mesh
-    vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]])
-    faces = np.array([[0, 1, 2]])
-    
-    # Test basic functionality
-    mesh = gfm.shape.Mesh(vertices, faces)
-    eigenfunctions, eigenvalues = gfm.laplacian.spectrum(mesh, k=3)
-    
-    print("Installation successful!")
-    print(f"Computed {eigenfunctions.shape[1]} eigenfunctions")
 
 Next Steps
 ----------
