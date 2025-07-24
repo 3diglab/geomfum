@@ -1,5 +1,5 @@
 Notebook Tutorials
-=================
+==================
 
 This section contains all the Jupyter notebook tutorials for GeomFuM. These notebooks provide hands-on examples and step-by-step guides for using the library.
 
@@ -63,12 +63,6 @@ Visualization
    how_to/16_vis_basic
    how_to/17_vis_dist
 
-Demos
------
+Full Demos
+----------
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Demo Notebooks
-
-   demos/First-FunctionalMap-Demo
-   demos/Deep-Functional-Maps-Demo 
