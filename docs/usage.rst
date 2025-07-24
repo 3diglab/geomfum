@@ -13,7 +13,7 @@ The best way to learn GeomFuM is through our interactive notebook tutorials. Sta
 - **Functional Maps** - :doc:`notebooks/how_to/07_functional_map.ipynb`
 
 Basic Usage Examples
--------------------
+--------------------
 
 Here are some key code snippets from our tutorials:
 
@@ -67,7 +67,7 @@ From :doc:`notebooks/how_to/03_descriptors.ipynb`:
     wks_descriptors = wks(mesh)
 
 Creating Descriptor Pipelines
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 From :doc:`notebooks/how_to/04_descriptor_pipeline.ipynb`:
 
@@ -87,7 +87,7 @@ From :doc:`notebooks/how_to/04_descriptor_pipeline.ipynb`:
     descriptors = pipeline.apply(mesh)
 
 Computing Functional Maps
-------------------------
+-------------------------
 
 From :doc:`notebooks/how_to/07_functional_map.ipynb`:
 
@@ -125,7 +125,7 @@ From :doc:`notebooks/how_to/07_functional_map.ipynb`:
     fmap = res.x.reshape(x0.shape)
 
 Converting to Pointwise Correspondences
---------------------------------------
+---------------------------------------
 
 From :doc:`notebooks/how_to/10_pointwise_from_functional.ipynb`:
 
@@ -139,7 +139,7 @@ From :doc:`notebooks/how_to/10_pointwise_from_functional.ipynb`:
     print(f"Computed {len(correspondences)} correspondences")
 
 Refining Functional Maps
------------------------
+------------------------
 
 From :doc:`notebooks/how_to/15_refine_functional_map.ipynb`:
 
@@ -155,11 +155,11 @@ From :doc:`notebooks/how_to/15_refine_functional_map.ipynb`:
     refined_correspondences = converter(refined_fmap, mesh_a, mesh_b)
 
 Advanced Techniques
-------------------
+-------------------
 
 
 Rematching Algorithm
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 From :doc:`notebooks/how_to/13_rematching.ipynb`:
 
@@ -173,7 +173,7 @@ From :doc:`notebooks/how_to/13_rematching.ipynb`:
 
 
 Deep Functional Maps
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 From :doc:`notebooks/how_to/14_deep_functional_maps_models.ipynb`:
 
@@ -191,7 +191,7 @@ From :doc:`notebooks/how_to/14_deep_functional_maps_models.ipynb`:
     fmap12, fmap21 = output["fmap12"], output["fmap21"]
 
 Neural Adjoint Maps
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 From :doc:`notebooks/how_to/18_neural_adjoint_maps.ipynb`:
 
@@ -209,7 +209,7 @@ Visualization
 -------------
 
 Basic Visualization
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 From :doc:`notebooks/how_to/16_vis_basic.ipynb`:
 
@@ -223,7 +223,7 @@ From :doc:`notebooks/how_to/16_vis_basic.ipynb`:
 
 
 Interactive Learning
--------------------
+--------------------
 
 For the best learning experience:
 
