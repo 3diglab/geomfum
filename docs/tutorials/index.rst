@@ -4,7 +4,7 @@ Tutorials
 This section contains comprehensive tutorials for using GeomFuM.
 
 Getting Started
---------------
+---------------
 
 .. toctree::
    :maxdepth: 2
@@ -12,7 +12,7 @@ Getting Started
    getting_started
 
 Notebook Tutorials
------------------
+------------------
 
 For hands-on, interactive tutorials with real examples, see our comprehensive collection of Jupyter notebooks:
 

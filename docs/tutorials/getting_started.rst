@@ -9,7 +9,7 @@ Quick Start
 The best way to get started with GeomFuM is to follow our step-by-step notebook tutorials. These notebooks contain real, working examples that you can run and modify.
 
 Essential Tutorials
-------------------
+-------------------
 
 Start with these fundamental notebooks in order:
 
@@ -114,7 +114,7 @@ To run these tutorials:
 4. **Follow the links** at the end of each notebook to progress through the tutorials
 
 Interactive Learning
--------------------
+--------------------
 
 Each notebook is designed to be interactive:
 
