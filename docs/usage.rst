@@ -72,6 +72,7 @@ Creating Descriptor Pipelines
 From :doc:`notebooks/how_to/04_descriptor_pipeline.ipynb`:
 
 .. code-block:: python
+    
     from geomfum.descriptor.spectral import HeatKernelSignature, LandmarkHeatKernelSignature
     from geomfum.descriptor.pipeline import DescriptorPipeline, ArangeSubsampler, L2InnerNormalizer
     
