@@ -70,4 +70,4 @@ Key Papers
 4. `Fast Sinkhorn Filters: Using Matrix Scaling for Non-Rigid Shape Correspondence <https://openaccess.thecvf.com/content/CVPR2021/html/Pai_Fast_Sinkhorn_Filters_Using_Matrix_Scaling_for_Non-Rigid_Shape_Correspondence_CVPR_2021_paper.html>`_
 5. `Elastic Functional Maps <https://arxiv.org/abs/2307.12913>`_
 
-For more detailed examples and tutorials, see the :doc:`../tutorials/functional_maps_basics` section. 
+For more detailed examples and tutorials, see the :doc:`../tutorials/` section. 

@@ -58,5 +58,5 @@ jobs:
           branch: master
           folder: docs/_build/html
           token: ${{ secrets.DOCUMENTATION_KEY }}
-          repository-name: geomfum/geomfum.github.io
+          repository-name: DiG-AIR/geomfum.github.io
           clean: true
