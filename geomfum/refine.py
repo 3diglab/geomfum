@@ -410,10 +410,7 @@ class AdjointBijectiveZoomOut(ZoomOut):
 
     References
     ----------
-    .. [VM2023] Giulio Viganò, Simone Melzi.
-        Adjoint Bijective ZoomOut: Efficient upsampling for learned linearly-invariant
-        embedding. 2023
-        https://github.com/gviga/AB-ZoomOut
+    :cite:`VM2024`
     """
 
     def __init__(

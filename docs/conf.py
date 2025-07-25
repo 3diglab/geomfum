@@ -18,6 +18,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
+    "sphinxcontrib.bibtex",
     "sphinx.ext.viewcode",
     "sphinx_gallery.load_style",
     "sphinx_copybutton",
@@ -45,8 +46,7 @@ nbsphinx_output_prompt = " Out [%s]:"
 nbsphinx_allow_errors = True
 
 # Notebook paths
-nbsphinx_prolog = (
-    r"""
+nbsphinx_prolog = r"""
 {% set docname = env.doc2path(env.docname, base=None) %}
 
 .. raw:: html
@@ -67,7 +67,6 @@ nbsphinx_prolog = (
     \textcolor{gray}{The following section was generated from
     \sphinxcode{\sphinxupquote{\strut {{ docname | escape_latex }}}} \dotfill}}
     """
-)
 
 nbsphinx_thumbnails = {}
 
@@ -78,14 +77,16 @@ main_doc = "index"
 language = "en"
 
 exclude_patterns = [
-    "_build", 
-    "Thumbs.db", 
-    ".DS_Store", 
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
     "**.ipynb_checkpoints",
     "notebooks/.ipynb_checkpoints",
     "notebooks/*/.ipynb_checkpoints",
     "notebooks/demos/**",  # Exclude demos to avoid large files
 ]
+
+bibtex_bibfiles = ["references.bib"]
 
 pygments_style = None
 
@@ -107,7 +108,6 @@ html_context = {
 
 # PyData theme options
 html_theme_options = {
-    
     "github_url": "https://github.com/DiG-AIR/geomfum",
     "use_edit_page_button": False,
     "show_toc_level": 2,

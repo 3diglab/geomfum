@@ -158,9 +158,9 @@ Pull Request Process
 7. **Wait for review**:
    - Address feedback from maintainers
    - Make changes as requested
-    - Re-request review when ready
-    - Ensure all checks pass before merging
-    - Merge when approved
+   - Re-request review when ready
+   - Ensure all checks pass before merging
+   - Merge when approved
 
 Code Review
 -----------

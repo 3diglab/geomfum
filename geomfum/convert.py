@@ -241,9 +241,8 @@ class FmFromP2pBijectiveConverter(BaseFmFromP2pConverter):
 
     References
     ----------
-    .. [VM2023] Giulio Viganò  Simone Melzi. “Adjoint Bijective ZoomOut:
-        Efficient Upsampling for Learned Linearly-Invariant Embedding.”
-        The Eurographics Association, 2023. https://doi.org/10.2312/stag.20231293.
+    .. [VM2024] Giulio Viganò  Simone Melzi. Bijective upsampling and learned embedding for point clouds correspondences.
+        Computers and Graphics, 2024. https://doi.org/10.1016/j.cag.2024.103985.
     """
 
     def __call__(self, p2p, basis_a, basis_b):
