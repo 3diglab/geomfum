@@ -44,7 +44,6 @@ class SpectralDescriptor(Descriptor, abc.ABC):
         self.sigma = sigma
         self.scale = scale
         self.landmarks = landmarks
-        self.k = k
         self.spectral_filter = spectral_filter
         self.k = k
 
