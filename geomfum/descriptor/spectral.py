@@ -200,6 +200,8 @@ class HeatKernelSignature(WhichRegistryMixins, SpectralDescriptor):
         Number of domain points. Ignored if ``domain`` is not None.
     domain : callable or array-like, shape=[n_domain], optional
         Method to compute time domain points (``f(shape)``) or time domain points.
+    k : int, optional
+        Number of eigenfunctions to use. If None, all eigenfunctions are used.
     """
 
     _Registry = HeatKernelSignatureRegistry
@@ -232,6 +234,8 @@ class WaveKernelSignature(WhichRegistryMixins, SpectralDescriptor):
         Number of domain points. Ignored if ``domain`` is not None.
     domain : callable or array-like, shape=[n_domain], optional
         Method to compute energy domain points (``f(shape)``) or energy domain points.
+    k : int, optional
+        Number of eigenfunctions to use. If None, all eigenfunctions are used.
     """
 
     _Registry = WaveKernelSignatureRegistry
@@ -262,6 +266,8 @@ class LandmarkHeatKernelSignature(WhichRegistryMixins, SpectralDescriptor):
         Number of domain points. Ignored if ``domain`` is not None.
     domain : callable or array-like, shape=[n_domain], optional
         Method to compute time domain points (``f(shape)``) or time domain points.
+    k : int, optional
+        Number of eigenfunctions to use.
     """
 
     _Registry = LandmarkHeatKernelSignatureRegistry
@@ -294,6 +300,8 @@ class LandmarkWaveKernelSignature(WhichRegistryMixins, SpectralDescriptor):
         Number of domain points. Ignored if ``domain`` is not None.
     domain : callable or array-like, shape=[n_domain], optional
         Method to compute energy domain points (``f(shape)``) or energy domain points.
+    k : int, optional
+        Number of eigenfunctions to use.
     """
 
     _Registry = LandmarkWaveKernelSignatureRegistry
@@ -306,4 +314,5 @@ class LandmarkWaveKernelSignature(WhichRegistryMixins, SpectralDescriptor):
             sigma=sigma,
             k=k,
             landmarks=True,
+            k=k,
         )

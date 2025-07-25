@@ -26,6 +26,8 @@ class SpectralDescriptor(Descriptor, abc.ABC):
         Whether to scale weights to sum to one.
     landmarks : bool
         Whether to compute landmarks based descriptors.
+    k: int, optional
+        Number of eigenvalues and eigenvectors to use. If None, basis.use_k is used.
     """
 
     def __init__(
@@ -44,6 +46,7 @@ class SpectralDescriptor(Descriptor, abc.ABC):
         self.landmarks = landmarks
         self.k = k
         self.spectral_filter = spectral_filter
+        self.k = k
 
     def __call__(self, shape):
         """Compute descriptor.
@@ -56,7 +59,6 @@ class SpectralDescriptor(Descriptor, abc.ABC):
         if self.k is not None:
             if shape.basis.spectrum_size != self.k:
                 shape.basis.use_k = self.k
-
         vals = shape.basis.vals
         vecs = shape.basis.vecs
 
