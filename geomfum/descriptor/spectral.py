@@ -314,5 +314,4 @@ class LandmarkWaveKernelSignature(WhichRegistryMixins, SpectralDescriptor):
             sigma=sigma,
             k=k,
             landmarks=True,
-            k=k,
         )
