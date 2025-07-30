@@ -140,7 +140,7 @@ class P2pFromFmConverter(BaseP2pFromFmConverter):
         return p2p
 
 
-class SoftmaxNeighborFinder(BaseNeighborFinder, nn.Module, WhichRegistryMixins):
+class SoftmaxNeighborFinder(NeighborFinder, nn.Module):
     """Softmax neighbor finder.
 
     Finds neighbors using softmax regularization.
@@ -153,27 +153,32 @@ class SoftmaxNeighborFinder(BaseNeighborFinder, nn.Module, WhichRegistryMixins):
         Temperature parameter for softmax regularization.
     """
 
-    _Registry = SoftmaxNeighborFinderRegistry
-
     def __init__(self, n_neighbors=1, tau=0.07):
         BaseNeighborFinder.__init__(self, n_neighbors=n_neighbors)
         nn.Module.__init__(self)
         self.tau = tau
 
-    def fit(self, X, y=None):
-        """Store the reference points."""
-        self.X = X
-        return self
+    def forward(self, X, Y):
+        """Find k nearest neighbors using softmax regularization.
 
-    def kneighbors(self, Y, return_distance=True):
-        """Find k nearest neighbors using softmax regularization."""
-        P = self.forward(self.X, Y)
-        indices = P.argmax(dim=-1)[:, None]
-        if return_distance:
-            return gs.linalg.norm(Y - P @ self.X, -1), indices
+        Parameters
+        ----------
+        X : array-like, shape=[n_points_x, n_features]
+            Reference points.
+        Y : array-like, shape=[n_points_y, n_features]
+            Query points.
+
+        Returns
+        -------
+        neigs : array-like, shape=[n_points_x, n_neighbors]
+            Indices of the nearest neighbors in Y for each point in X.
+        """
+        P = self.softmax_matrix(X, Y)
+        # Get the indices of the top-k (self.n_neighbors) highest values for each row
+        indices = torch.topk(P, self.n_neighbors, dim=-1)[1]
         return indices
 
-    def forward(self, X, Y):
+    def softmax_matrix(self, X, Y):
         """Compute the permutation matrix P as a softmax of the similarity.
 
         Parameters
