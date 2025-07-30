@@ -1,1 +1,6 @@
-from ._base import Metric, FinitePointSetMetric, HeatDistanceMetric
+from ._base import (
+    FinitePointSetMetric,
+    HeatDistanceMetric,
+    Metric,
+    VertexEuclideanMetric,
+)
