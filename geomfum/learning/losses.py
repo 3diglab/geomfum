@@ -103,9 +103,9 @@ class OrthonormalityLoss(nn.Module):
         Parameters
         ----------
         fmap12 : torch.Tensor
-            Functional map tensor of shape ( spectrum_size_a, spectrum_size_b).
-        fmap21 : torch.Tensor
             Functional map tensor of shape ( spectrum_size_b, spectrum_size_a).
+        fmap21 : torch.Tensor
+            Functional map tensor of shape ( spectrum_size_a, spectrum_size_b).
 
         Returns
         -------
@@ -113,10 +113,11 @@ class OrthonormalityLoss(nn.Module):
             Scalar tensor representing the weighted mean squared Frobenius norm between C^T C and the identity matrix.
         """
         metric = SquaredFrobeniusLoss()
-        eye = torch.eye(fmap12.shape[0], device=fmap12.device)
+        eye_b = torch.eye(fmap12.shape[0], device=fmap12.device)
+        eye_a = torch.eye(fmap21.shape[1], device=fmap21.device)
         return self.weight * (
-            metric(torch.mm(fmap12.T, fmap12), eye)
-            + metric(torch.mm(fmap21.T, fmap21), eye)
+            metric(torch.mm(fmap12.T, fmap12), eye_b)
+            + metric(torch.mm(fmap21.T, fmap21), eye_a)
         )
 
 
@@ -143,9 +144,9 @@ class BijectivityLoss(nn.Module):
         Parameters
         ----------
         fmap12 : torch.Tensor
-            Functional map tensor from shape 1 to shape 2 of shape (spectrum_size_a, spectrum_size_b).
+            Functional map tensor from shape 1 to shape 2 of shape (spectrum_size_b, spectrum_size_a).
         fmap21 : torch.Tensor
-            Functional map tensor from shape 2 to shape 1 of shape (spectrum_size_b, spectrum_size_a).
+            Functional map tensor from shape 2 to shape 1 of shape (spectrum_size_a, spectrum_size_b).
 
         Returns
         -------
@@ -153,10 +154,11 @@ class BijectivityLoss(nn.Module):
             Scalar tensor representing the weighted mean squared Frobenius norm between fmap12 fmap21 and the identity matrix, and between fmap21 fmap12 and the identity matrix.
         """
         metric = SquaredFrobeniusLoss()
-        eye = torch.eye(fmap12.shape[1], device=fmap12.device)
-        return self.weight * metric(torch.mm(fmap12, fmap21), eye) + metric(
-            torch.mm(fmap21, fmap12), eye
-        )
+        eye_b = torch.eye(fmap12.shape[0], device=fmap12.device)
+        eye_a = torch.eye(fmap21.shape[1], device=fmap21.device)
+        return self.weight * metric(
+            torch.mm(fmap12, fmap21), eye_b
+        ) + self.weight * metric(torch.mm(fmap21, fmap12), eye_a)
 
 
 class LaplacianCommutativityLoss(nn.Module):
@@ -182,7 +184,7 @@ class LaplacianCommutativityLoss(nn.Module):
         Parameters
         ----------
         fmap12 : torch.Tensor
-            Functional map tensor from source to target shape, of shape ( spectrum_size_a, spectrum_size_b ).
+            Functional map tensor from source to target shape, of shape ( spectrum_size_b, spectrum_size_a ).
         shape_a : Shape
             Shape object containing source shape information.
         shape_b : Shape
@@ -195,8 +197,8 @@ class LaplacianCommutativityLoss(nn.Module):
         """
         metric = SquaredFrobeniusLoss()
         return self.weight * metric(
-            torch.einsum("bc,c->bc", fmap12, shape_a.basis.vals),
-            torch.einsum("b,bc->bc", shape_b.basis.vals, fmap12),
+            torch.einsum("bc,c->bc", fmap12, shape_b.basis.vals),
+            torch.einsum("b,bc->bc", shape_a.basis.vals, fmap12),
         )
 
 

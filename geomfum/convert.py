@@ -9,11 +9,63 @@ from sklearn.neighbors import NearestNeighbors
 
 import geomfum.backend as xgs
 import geomfum.wrap as _wrap  # noqa (for register)
-from geomfum._registry import (
-    SinkhornNeighborFinderRegistry,
-    WhichRegistryMixins,
-)
+from geomfum._registry import NeighborFinderRegistry, WhichRegistryMixins
 from geomfum.neural_adjoint_map import NeuralAdjointMap
+
+
+class BaseNeighborFinder(abc.ABC):
+    """Base class for a Neighbor finder.
+
+    Parameters
+    ----------
+    n_neighbors : int
+        Number of neighbors to find.
+    """
+
+    def __init__(self, n_neighbors=1):
+        self.n_neighbors = n_neighbors
+
+
+class NeighborFinder(WhichRegistryMixins, BaseNeighborFinder):
+    """Base class for a Neighbor finder.
+
+    A simplified blueprint of ``sklearn.NearestNeighbors`` implementation.
+
+    Parameters
+    ----------
+    n_neighbors : int
+        Number of neighbors.
+    """
+
+    _Registry = NeighborFinderRegistry
+
+    def __init__(self, n_neighbors=1):
+        self.n_neighbors = n_neighbors
+        self.sklearn_neighbor_finder = NearestNeighbors(
+            n_neighbors=self.n_neighbors, leaf_size=40, algorithm="kd_tree", n_jobs=1
+        )
+
+    def __call__(self, X, Y):
+        """Return indices of the points in `X` nearest to the points in `Y`.
+
+        Parameters
+        ----------
+        X : array-like, shape=[n_points_x, n_features]
+            Reference points.
+        Y : array-like, shape=[n_points_y, n_features]
+            Query points.
+
+        Returns
+        -------
+        neigs : array-like, shape=[n_points_x, n_neighbors]
+            Indices of the nearest neighbors in Y for each point in X.
+        """
+        self.sklearn_neighbor_finder.fit(xgs.to_device(Y, "cpu"))
+        neigs = self.sklearn_neighbor_finder.kneighbors(
+            xgs.to_device(X, "cpu"), return_distance=False
+        )
+
+        return gs.from_numpy(neigs)
 
 
 class BaseP2pFromFmConverter(abc.ABC):
@@ -29,8 +81,6 @@ class P2pFromFmConverter(BaseP2pFromFmConverter):
         Nearest neighbor finder.
     adjoint : bool
         Whether to use adjoint method.
-    bijective : bool
-        Whether to use bijective method. Check [VM2023]_.
 
     References
     ----------
@@ -46,9 +96,7 @@ class P2pFromFmConverter(BaseP2pFromFmConverter):
 
     def __init__(self, neighbor_finder=None, adjoint=False, bijective=False):
         if neighbor_finder is None:
-            neighbor_finder = NearestNeighbors(
-                n_neighbors=1, leaf_size=40, algorithm="kd_tree", n_jobs=1
-            )
+            neighbor_finder = NeighborFinder(n_neighbors=1)
         if neighbor_finder.n_neighbors > 1:
             raise ValueError("Expects `n_neighors = 1`.")
 
@@ -67,6 +115,7 @@ class P2pFromFmConverter(BaseP2pFromFmConverter):
             Basis of the source shape.
         basis_b : Basis,
             Basis of the target shape.
+
         Returns
         -------
         p2p : array-like, shape=[{n_vertices_b, n_vertices_a}]
@@ -85,76 +134,9 @@ class P2pFromFmConverter(BaseP2pFromFmConverter):
         if self.bijective:
             emb1, emb2 = emb2, emb1
 
-        # TODO: update neighbor finder instead
-        self.neighbor_finder.fit(xgs.to_device(emb1, "cpu"))
-        p2p_21 = self.neighbor_finder.kneighbors(
-            xgs.to_device(emb2, "cpu"), return_distance=False
-        )
+        p2p = self.neighbor_finder(emb2, emb1).flatten()
 
-        return gs.from_numpy(p2p_21[:, 0])
-
-
-class BaseNeighborFinder(abc.ABC):
-    """Base class for a Neighbor finder.
-
-    A simplified blueprint of ``sklearn.NearestNeighbors`` implementation.
-
-    Parameters
-    ----------
-    n_neighbors : int
-        Number of neighbors.
-    """
-
-    def __init__(self, n_neighbors=1):
-        self.n_neighbors = n_neighbors
-
-    @abc.abstractmethod
-    def fit(self, X, y=None):
-        """Store the reference points.
-
-        Parameters
-        ----------
-        X : array-like, shape=[n_points_x, n_features]
-            Reference points.
-        y : Ignored
-        """
-
-    @abc.abstractmethod
-    def kneighbors(self, X, return_distance=True):
-        """Find k nearest neighbors using Sinkhorn regularization.
-
-        Parameters
-        ----------
-        X : array-like, shape=[n_points_y, n_features]
-            Query points.
-        return_distance : bool
-            Whether to return the distances.
-
-        Returns
-        -------
-        distances : array-like, shape=[n_points_y, n_neighbors]
-            Distances to the nearest neighbors, only present if
-            ``return_distance is True``.
-        indices : array-like, shape=[n_points_y, n_neighbors]
-            Indices of the nearest neighbors.
-        """
-
-
-class SinkhornNeighborFinder(WhichRegistryMixins):
-    """Sinkhorn neighbor finder.
-
-    Finds neighbors based on the solution of optimal transport (OT) maps
-    computed with Sinkhorn regularization.
-
-    References
-    ----------
-    .. [Cuturi2013] Marco Cuturi. “Sinkhorn Distances: Lightspeed Computation
-        of Optimal Transport.”
-        Advances in Neural Information Processing Systems (NIPS), 2013.
-        http://marcocuturi.net/SI.html
-    """
-
-    _Registry = SinkhornNeighborFinderRegistry
+        return p2p
 
 
 class SinkhornP2pFromFmConverter(P2pFromFmConverter):
@@ -185,7 +167,7 @@ class SinkhornP2pFromFmConverter(P2pFromFmConverter):
         bijective=False,
     ):
         if neighbor_finder is None:
-            neighbor_finder = SinkhornNeighborFinder.from_registry(which="pot")
+            neighbor_finder = NeighborFinder.from_registry(which="pot")
 
         super().__init__(
             neighbor_finder=neighbor_finder,
@@ -217,7 +199,7 @@ class FmFromP2pConverter(BaseFmFromP2pConverter):
         Parameters
         ----------
         p2p : array-like, shape=[n_vertices_b]
-            Poinwise map.
+            Pointwise map.
         basis_a : Basis,
             Basis of the source shape.
         basis_b : Basis,
@@ -246,6 +228,9 @@ class FmFromP2pBijectiveConverter(BaseFmFromP2pConverter):
         The Eurographics Association, 2023. https://doi.org/10.2312/stag.20231293.
     """
 
+    def __init__(self, pseudo_inverse=False):
+        self.pseudo_inverse = pseudo_inverse
+
     def __call__(self, p2p, basis_a, basis_b):
         """Convert point to point map.
 
@@ -258,13 +243,16 @@ class FmFromP2pBijectiveConverter(BaseFmFromP2pConverter):
         basis_b : Basis,
             Basis of the target shape.
 
-
         Returns
         -------
         fmap_matrix : array-like, shape=[spectrum_size_b, spectrum_size_a]
             Functional map matrix.
         """
         evects2_pb = basis_b.vecs[p2p, :]
+
+        if self.pseudo_inverse:
+            return gs.linalg.pinv(evects2_pb) @ basis_a.vecs
+
         return gs.from_numpy(scipy.linalg.lstsq(evects2_pb, basis_a.vecs)[0])
 
 
@@ -309,8 +297,8 @@ class NamFromP2pConverter(BaseFmFromP2pConverter):
         nam: NeuralAdjointMap , shape=[spectrum_size_b, spectrum_size_a]
             Neural Adjoint Map model.
         """
-        evects2_pb = xgs.to_torch(basis_b.vecs[p2p, :]).to(self.device).double()
-        evects1 = xgs.to_torch(basis_a.vecs).to(self.device).double()
+        evects1_pb = xgs.to_torch(basis_a.vecs[p2p, :]).to(self.device).double()
+        evects2 = xgs.to_torch(basis_b.vecs).to(self.device).double()
         nam = NeuralAdjointMap(
             input_dim=basis_a.spectrum_size,
             output_dim=basis_b.spectrum_size,
@@ -326,9 +314,9 @@ class NamFromP2pConverter(BaseFmFromP2pConverter):
         for _ in range(self.iter_max):
             optimizer.zero_grad()
 
-            pred = nam(evects2_pb)
+            pred = nam(evects1_pb)
 
-            loss = torch.nn.functional.mse_loss(pred, evects1)
+            loss = torch.nn.functional.mse_loss(pred, evects2)
             loss.backward()
             optimizer.step()
 
@@ -354,9 +342,7 @@ class P2pFromNamConverter(BaseP2pFromFmConverter):
 
     def __init__(self, neighbor_finder=None):
         if neighbor_finder is None:
-            neighbor_finder = NearestNeighbors(
-                n_neighbors=1, leaf_size=40, algorithm="kd_tree", n_jobs=1
-            )
+            neighbor_finder = NeighborFinder(n_neighbors=1)
         if neighbor_finder.n_neighbors > 1:
             raise ValueError("Expects `n_neighors = 1`.")
 
@@ -373,20 +359,16 @@ class P2pFromNamConverter(BaseP2pFromFmConverter):
             Basis of the source shape.
         basis_b : Basis,
             Basis of the target shape.
+
         Returns
         -------
-        p2p : array-like, shape=[{n_vertices_b, n_vertices_a}]
+        p2p : array-like, shape=[n_vertices_b]
             Pointwise map.
         """
         k2, k1 = nam.shape
 
-        emb1 = xgs.to_torch(basis_a.full_vecs[:, :k1]).to(nam.device).double()
-        emb2 = nam(xgs.to_torch(basis_b.full_vecs[:, :k2]).to(nam.device).double())
+        emb1 = nam(xgs.to_torch(basis_a.full_vecs[:, :k2]).to(nam.device).double())
+        emb2 = xgs.to_torch(basis_b.full_vecs[:, :k1]).to(nam.device).double()
 
-        # TODO: update neighbor finder instead
-        self.neighbor_finder.fit(emb2.detach().cpu())
-        p2p_21 = self.neighbor_finder.kneighbors(
-            emb1.detach().cpu(), return_distance=False
-        )
-
-        return gs.from_numpy(p2p_21[:, 0])
+        p2p = self.neighbor_finder(emb2.detach(), emb1.detach()).flatten()
+        return p2p

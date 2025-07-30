@@ -181,8 +181,19 @@ class WaveKernelFilter(SpectralFilter):
         coefs : array-like, shape=[n_domain, n_eigen]
             Filter coefficients.
         """
-        exp_arg = -xgs.square(gs.log(vals) - domain[:, None]) / (2 * xgs.square(sigma))
+        nonzero_vals = vals[gs.sum(gs.isclose(vals, 0.0)) :]
+        zeros = xgs.to_device(
+            gs.zeros((domain.shape[0], vals.shape[0] - nonzero_vals.shape[0])),
+            device=getattr(nonzero_vals, "device", None),
+        )
+        exp_arg = -xgs.square(gs.log(nonzero_vals) - domain[:, None]) / (
+            2 * xgs.square(sigma)
+        )
         coefs = gs.exp(exp_arg)
+
+        if zeros.shape[1] > 0:
+            coefs = gs.concatenate([zeros, coefs], axis=1)
+
         return coefs
 
 
@@ -200,11 +211,13 @@ class HeatKernelSignature(WhichRegistryMixins, SpectralDescriptor):
         Number of domain points. Ignored if ``domain`` is not None.
     domain : callable or array-like, shape=[n_domain], optional
         Method to compute time domain points (``f(shape)``) or time domain points.
+    k : int, optional
+        Number of eigenfunctions to use. If None, all eigenfunctions are used.
     """
 
     _Registry = HeatKernelSignatureRegistry
 
-    def __init__(self, scale=True, n_domain=3, domain=None):
+    def __init__(self, scale=True, n_domain=3, domain=None, k=None):
         super().__init__(
             spectral_filter=HeatKernelFilter(),
             domain=domain
@@ -212,6 +225,7 @@ class HeatKernelSignature(WhichRegistryMixins, SpectralDescriptor):
             scale=scale,
             sigma=1,
             landmarks=False,
+            k=k,
         )
 
 
@@ -231,11 +245,13 @@ class WaveKernelSignature(WhichRegistryMixins, SpectralDescriptor):
         Number of domain points. Ignored if ``domain`` is not None.
     domain : callable or array-like, shape=[n_domain], optional
         Method to compute energy domain points (``f(shape)``) or energy domain points.
+    k : int, optional
+        Number of eigenfunctions to use. If None, all eigenfunctions are used.
     """
 
     _Registry = WaveKernelSignatureRegistry
 
-    def __init__(self, scale=True, sigma=None, n_domain=3, domain=None):
+    def __init__(self, scale=True, sigma=None, n_domain=3, domain=None, k=None):
         domain = domain or WksDefaultDomain(n_domain=n_domain, sigma=sigma)
         super().__init__(
             spectral_filter=WaveKernelFilter(),
@@ -243,6 +259,7 @@ class WaveKernelSignature(WhichRegistryMixins, SpectralDescriptor):
             scale=scale,
             sigma=sigma,
             landmarks=False,
+            k=k,
         )
 
 
@@ -260,11 +277,13 @@ class LandmarkHeatKernelSignature(WhichRegistryMixins, SpectralDescriptor):
         Number of domain points. Ignored if ``domain`` is not None.
     domain : callable or array-like, shape=[n_domain], optional
         Method to compute time domain points (``f(shape)``) or time domain points.
+    k : int, optional
+        Number of eigenfunctions to use.
     """
 
     _Registry = LandmarkHeatKernelSignatureRegistry
 
-    def __init__(self, scale=True, n_domain=3, domain=None):
+    def __init__(self, scale=True, n_domain=3, domain=None, k=None):
         super().__init__(
             spectral_filter=HeatKernelFilter(),
             domain=domain
@@ -272,6 +291,7 @@ class LandmarkHeatKernelSignature(WhichRegistryMixins, SpectralDescriptor):
             scale=scale,
             sigma=1,
             landmarks=True,
+            k=k,
         )
 
 
@@ -291,15 +311,18 @@ class LandmarkWaveKernelSignature(WhichRegistryMixins, SpectralDescriptor):
         Number of domain points. Ignored if ``domain`` is not None.
     domain : callable or array-like, shape=[n_domain], optional
         Method to compute energy domain points (``f(shape)``) or energy domain points.
+    k : int, optional
+        Number of eigenfunctions to use.
     """
 
     _Registry = LandmarkWaveKernelSignatureRegistry
 
-    def __init__(self, scale=True, sigma=None, n_domain=3, domain=None):
+    def __init__(self, scale=True, sigma=None, n_domain=3, domain=None, k=None):
         super().__init__(
             spectral_filter=WaveKernelFilter(),
             domain=domain or WksDefaultDomain(n_domain=n_domain, sigma=sigma),
             scale=scale,
             sigma=sigma,
             landmarks=True,
+            k=k,
         )

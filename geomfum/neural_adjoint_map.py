@@ -51,7 +51,7 @@ class NeuralAdjointMap(nn.Module):
             )
 
         # Non-linear MLP Module
-        self.nonlinear_module= non_linear_module
+        self.nonlinear_module = non_linear_module
         if self.nonlinear_module is None:
             self.nonlinear_module = MLP(
                 input_dim=input_dim,

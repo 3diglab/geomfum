@@ -52,7 +52,7 @@ polyscope = ["polyscope"]
 plotting-all = ["geomfum[plotly,pyvista,polyscope]"]
 
 [project.urls]
-repository = "http://github.com/luisfpereira/geomfum"
+repository = "http://github.com/DiG-AIR/geomfum"
 
 [tool.setuptools.dynamic]
 version = { attr = "geomfum.__version__" }

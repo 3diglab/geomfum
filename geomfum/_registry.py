@@ -340,7 +340,9 @@ class FeatureExtractorRegistry(Registry):
     MAP = {}
 
 
-class SinkhornNeighborFinderRegistry(Registry):
+class NeighborFinderRegistry(Registry):
+    has_internal = True
+
     MAP = {}
 
 

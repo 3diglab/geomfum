@@ -96,8 +96,7 @@ class ShapeDataset(Dataset):
 
             # preprocess
             if spectral:
-                shape.laplacian.find_spectrum(spectrum_size=200, set_as_basis=True)
-                shape.basis.use_k = self.k
+                mesh.laplacian.find_spectrum(spectrum_size=k, set_as_basis=True)
 
             self.shapes[filename] = shape
 
