@@ -13,6 +13,7 @@ import torch
 from torch.utils.data import Dataset
 
 import geomfum.backend as xgs
+from geomfum.metric import VertexEuclideanMetric
 from geomfum.metric.mesh import ScipyGraphShortestPathMetric
 from geomfum.shape import PointCloud, TriangleMesh
 
@@ -147,7 +148,10 @@ class ShapeDataset(Dataset):
                 if "D" in mat_contents:
                     geod_distance_matrix = mat_contents["D"]
             if geod_distance_matrix is None:
-                metric = ScipyGraphShortestPathMetric(shape)
+                if self.shape_type == "mesh":
+                    metric = ScipyGraphShortestPathMetric(shape)
+                else:  # pointcloud
+                    metric = VertexEuclideanMetric(shape)
                 geod_distance_matrix = metric.dist_matrix()
                 os.makedirs(os.path.dirname(dist_path), exist_ok=True)
                 scipy.io.savemat(
