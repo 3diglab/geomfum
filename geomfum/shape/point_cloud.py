@@ -5,7 +5,7 @@ import sklearn.neighbors as neighbors
 
 import geomfum.backend as xgs
 from geomfum.io import load_pointcloud
-from geomfum.metric.mesh import HeatDistanceMetric
+from geomfum.metric import HeatDistanceMetric
 from geomfum.shape.shape_utils import (
     compute_edge_tangent_vectors,
     compute_gradient_matrix_fem,

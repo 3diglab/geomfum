@@ -7,7 +7,8 @@ by Nicholas Sharp.
 import geomstats.backend as gs
 import potpourri3d as pp3d
 
-from geomfum.metric.mesh import FinitePointSetMetric, _SingleDispatchMixins
+from geomfum.metric import FinitePointSetMetric
+from geomfum.metric._base import _SingleDispatchMixins
 
 
 class Pp3dHeatDistanceMetric(_SingleDispatchMixins, FinitePointSetMetric):
@@ -15,8 +16,10 @@ class Pp3dHeatDistanceMetric(_SingleDispatchMixins, FinitePointSetMetric):
 
     Parameters
     ----------
-    shape : Shape
-        Shape.
+    shape : TriangleMesh
+        Mesh.
+    solver_class : pp3d.HeatMethodDistanceSolver
+        Heat method distance solver class. '  '
 
     References
     ----------
@@ -25,12 +28,16 @@ class Pp3dHeatDistanceMetric(_SingleDispatchMixins, FinitePointSetMetric):
         https://doi.org/10.1145/3131280
     """
 
-    def __init__(self, shape):
+    def __init__(self, shape, solver_class=None):
         super().__init__(shape)
-        self.solver = pp3d.MeshHeatMethodDistanceSolver(
+        if solver_class is None:
+            solver_class = pp3d.MeshHeatMethodDistanceSolver
+
+        self.solver = solver_class(
             gs.to_numpy(shape.vertices), gs.to_numpy(shape.faces)
         )
 
+    # TO DO: Dispatch this
     def dist_matrix(self):
         """Distance between mesh vertices.
 
@@ -88,3 +95,37 @@ class Pp3dHeatDistanceMetric(_SingleDispatchMixins, FinitePointSetMetric):
         dist = self.solver.compute_distance(point_a)[point_b]
 
         return gs.asarray(dist)
+
+
+class Pp3dMeshHeatDistanceMetric(Pp3dHeatDistanceMetric):
+    """Heat distance metric between vertices of a mesh.
+
+    Parameters
+    ----------
+    shape : TriangleMesh
+        Mesh.
+
+    References
+    ----------
+    cite:: CWW2017
+    """
+
+    def __init__(self, shape):
+        super().__init__(shape, solver_class=pp3d.MeshHeatMethodDistanceSolver)
+
+
+class Pp3dPointSetHeatDistanceMetric(Pp3dHeatDistanceMetric):
+    """Heat distance metric between points of a PointCloud.
+
+    Parameters
+    ----------
+    shape : PointCloud
+        Point cloud.
+
+    References
+    ----------
+    cite:: CWW2017
+    """
+
+    def __init__(self, shape):
+        super().__init__(shape, solver_class=pp3d.PointCloudHeatSolver)

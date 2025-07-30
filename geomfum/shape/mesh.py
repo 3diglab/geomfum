@@ -4,7 +4,7 @@ import geomstats.backend as gs
 
 import geomfum.backend as xgs
 from geomfum.io import load_mesh
-from geomfum.metric.mesh import HeatDistanceMetric
+from geomfum.metric import HeatDistanceMetric
 from geomfum.operator import (
     FaceDivergenceOperator,
     FaceOrientationOperator,
