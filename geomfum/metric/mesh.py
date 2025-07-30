@@ -5,9 +5,8 @@ import abc
 import geomstats.backend as gs
 import networkx as nx
 from scipy.sparse.csgraph import shortest_path
-import geomfum.backend as xgs
-import networkx as nx
 
+import geomfum.backend as xgs
 from geomfum._registry import HeatDistanceMetricRegistry, WhichRegistryMixins
 from geomfum.numerics.graph import single_source_partial_dijkstra_path_length
 

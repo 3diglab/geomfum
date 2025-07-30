@@ -63,6 +63,7 @@ class PointCloud(Shape):
         """
         return self.vertices.shape[0]
 
+    # TODO: check if we can impleemnt this somewhere else ar make it a callable
     @property
     def knn_graph(self):
         """Compute k-nearest neighbors graph for the point cloud.
@@ -79,17 +80,17 @@ class PointCloud(Shape):
         if self._knn_graph is None:
             vertices_np = gs.to_numpy(xgs.to_device(self.vertices, "cpu"))
 
-            nbrs = neighbors.NearestNeighbors(
+            neigs = neighbors.NearestNeighbors(
                 n_neighbors=self.n_neighbors, algorithm="kd_tree"
             ).fit(vertices_np)
 
-            distances, indices = nbrs.kneighbors(vertices_np)
+            distances, indices = neigs.kneighbors(vertices_np)
 
             self._knn_graph = {
                 "indices": indices,
                 "distances": distances,
                 "k": self.n_neighbors,
-                "nbrs_model": nbrs,
+                "neighbors_model": neigs,
             }
 
         return self._knn_graph
@@ -105,21 +106,15 @@ class PointCloud(Shape):
         """
         if self._vertex_normals is None:
             neighbor_indices = gs.array(self.knn_graph["indices"])
-
             all_neighborhoods = self.vertices[neighbor_indices]
-
             centroids = gs.mean(all_neighborhoods, axis=1)
-
             local_neighborhoods = all_neighborhoods - centroids[:, None, :]
-
             cov_matrices = gs.einsum(
                 "ijk,ijl->ikl", local_neighborhoods, local_neighborhoods
             ) / (self.n_neighbors - 1)
-
             try:
                 _, _, v = gs.linalg.svd(cov_matrices)
                 normals = v[:, :, 2]
-
             except Exception:
                 normals = gs.zeros_like(self.vertices)
                 normals[:, 2] = 1.0
@@ -163,7 +158,6 @@ class PointCloud(Shape):
         """Compute edges of the graph of the point cloud."""
         if self._edges is None:
             neighbor_indices = gs.array(self.knn_graph["indices"])
-            # build edges
             edge_inds_from = gs.repeat(
                 gs.arange(self.vertices.shape[0]), self.n_neighbors
             )
