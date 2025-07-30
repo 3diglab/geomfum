@@ -354,10 +354,6 @@ class HeatDistanceMetricRegistry(Registry):
     MAP = {}
 
 
-class SoftmaxNeighborFinderRegistry(Registry):
-    MAP = {}
-
-
 def _create_register_funcs(module):
     """Create ``register`` functions for each class registry in this module.
 
