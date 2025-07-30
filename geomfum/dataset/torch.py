@@ -17,158 +17,21 @@ from geomfum.metric.mesh import ScipyGraphShortestPathMetric
 from geomfum.shape import PointCloud, TriangleMesh
 
 
-class MeshDataset(Dataset):
-    """ShapeDataset for loading and preprocessing shape data.
-
-    Parameters
-    ----------
-    dataset_dir : str
-        Path to the directory containing the dataset. We assume the dataset directory to have a subfolder shapes, for shapes, corr, for correspondences and dist, for chaced distance matrices.
-    spectral : bool
-        Whether to compute the spectral features.
-    distances : bool
-        Whether to compute geodesic distance matrices. For computational reasons, these are not computed on the fly, but rather loaded from a precomputed .mat file.
-    k : int
-        Number of eigenvectors to use for the spectral features.
-    device : torch.device, optional
-        Device to move the data to.
-    """
-
-    def __init__(
-        self,
-        dataset_dir,
-        spectral=False,
-        distances=False,
-        correspondences=True,
-        k=200,
-        device=None,
-    ):
-        self.dataset_dir = dataset_dir
-        self.shape_dir = os.path.join(dataset_dir, "shapes")
-        all_shape_files = sorted(
-            [
-                f
-                for f in os.listdir(self.shape_dir)
-                if f.lower().endswith((".off", ".ply", ".obj"))
-            ]
-        )
-        self.shape_files = all_shape_files
-
-        self.device = (
-            device
-            if device is not None
-            else torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        )
-
-        self.spectral = spectral
-        self.k = k
-        self.distances = distances
-        self.correspondences = correspondences
-        # Preload meshes (or their important features) into memory
-        self.meshes = {}
-        self.corrs = {}
-        for filename in self.shape_files:
-            ext = os.path.splitext(filename)[1][1:]
-            if ext not in meshio._helpers._writer_map:
-                warnings.warn(f"Skipped unsupported mesh file: {filename}")
-                continue
-            filepath = os.path.join(self.shape_dir, filename)
-            mesh = TriangleMesh.from_file(filepath)
-            base_name, _ = os.path.splitext(filename)
-            # preprocess
-            if spectral:
-                mesh.laplacian.find_spectrum(spectrum_size=200, set_as_basis=True)
-                mesh.basis.use_k = self.k
-
-            self.meshes[filename] = mesh
-
-            corr_filename = base_name + ".vts"
-            if self.correspondences:
-                if os.path.exists(
-                    os.path.join(self.dataset_dir, "corr", corr_filename)
-                ):
-                    # Load correspondences from file, subtract 1 to convert to zero-based indexing.
-                    self.corrs[filename] = (
-                        np.loadtxt(
-                            os.path.join(self.dataset_dir, "corr", corr_filename)
-                        ).astype(np.int32)
-                        - 1
-                    )
-                else:
-                    self.corrs[filename] = np.arange(mesh.vertices.shape[0])
-
-    def __getitem__(self, idx):
-        """Retrieve a data sample by index.
-
-        Parameters
-        ----------
-        idx : int
-            Index of the item to retrieve.
-
-
-        Returns
-        -------
-        shape_data: dict
-            Dictionary containing the shape, the correspondence and the distances if available and required.
-
-        """
-        filename = self.shape_files[idx]
-        mesh = self.meshes[filename]
-
-        shape_data = {}
-
-        if self.correspondences:
-            shape_data.update({"corr": gs.array(self.corrs[filename])})
-
-        if self.distances:
-            mat_subfolder = os.path.join(self.dataset_dir, "dist")
-            base_name, _ = os.path.splitext(filename)
-            mat_filename = base_name + ".mat"
-            dist_path = os.path.join(mat_subfolder, mat_filename)
-            geod_distance_matrix = None
-            if os.path.exists(dist_path):
-                mat_contents = scipy.io.loadmat(dist_path)
-                if "D" in mat_contents:
-                    geod_distance_matrix = mat_contents["D"]
-            if geod_distance_matrix is None:
-                metric = ScipyGraphShortestPathMetric(mesh)
-                geod_distance_matrix = metric.dist_matrix()
-                os.makedirs(os.path.dirname(dist_path), exist_ok=True)
-                scipy.io.savemat(
-                    dist_path,
-                    {"D": gs.to_numpy(geod_distance_matrix)},
-                )
-
-            shape_data.update({"dist_matrix": gs.array(geod_distance_matrix)})
-
-        mesh.vertices = xgs.to_device(mesh.vertices, self.device)
-        mesh.faces = xgs.to_device(mesh.faces, self.device)
-        mesh.basis.full_vals = xgs.to_device(mesh.basis.full_vals, self.device)
-        mesh.basis.full_vecs = xgs.to_device(mesh.basis.full_vecs, self.device)
-        mesh.laplacian._mass_matrix = xgs.to_device(
-            mesh.laplacian._mass_matrix, self.device
-        )
-
-        shape_data.update({"shape": mesh})
-
-        return shape_data
-
-    def __len__(self):
-        """Get the length of the dataset."""
-        return len(self.shape_files)
-
-
-class PointCloudDataset(Dataset):
-    """ShapeDataset for loading and preprocessing point cloud data.
+class ShapeDataset(Dataset):
+    """General dataset for loading and preprocessing shape data (meshes or point clouds).
 
     Parameters
     ----------
     dataset_dir : str
         Path to the directory containing the dataset. We assume the dataset directory to have a subfolder shapes, for shapes, corr, for correspondences and dist, for cached distance matrices.
+    shape_type : str
+        Type of shape to load. Either 'mesh' or 'pointcloud'.
     spectral : bool
         Whether to compute the spectral features.
     distances : bool
         Whether to compute geodesic distance matrices. For computational reasons, these are not computed on the fly, but rather loaded from a precomputed .mat file.
+    correspondences : bool
+        Whether to load correspondences.
     k : int
         Number of eigenvectors to use for the spectral features.
     device : torch.device, optional
@@ -178,13 +41,18 @@ class PointCloudDataset(Dataset):
     def __init__(
         self,
         dataset_dir,
+        shape_type="mesh",
         spectral=False,
         distances=False,
         correspondences=True,
         k=200,
         device=None,
     ):
+        if shape_type not in ["mesh", "pointcloud"]:
+            raise ValueError("shape_type must be either 'mesh' or 'pointcloud'")
+
         self.dataset_dir = dataset_dir
+        self.shape_type = shape_type
         self.shape_dir = os.path.join(dataset_dir, "shapes")
         all_shape_files = sorted(
             [
@@ -205,23 +73,33 @@ class PointCloudDataset(Dataset):
         self.k = k
         self.distances = distances
         self.correspondences = correspondences
-        # Preload pointclouds (or their important features) into memory
-        self.pointclouds = {}
+
+        # Preload shapes (or their important features) into memory
+        self.shapes = {}
         self.corrs = {}
+
         for filename in self.shape_files:
             ext = os.path.splitext(filename)[1][1:]
             if ext not in meshio._helpers._writer_map:
                 warnings.warn(f"Skipped unsupported mesh file: {filename}")
                 continue
+
             filepath = os.path.join(self.shape_dir, filename)
-            pointcloud = PointCloud.from_file(filepath)
+
+            # Load shape based on type
+            if self.shape_type == "mesh":
+                shape = TriangleMesh.from_file(filepath)
+            else:  # pointcloud
+                shape = PointCloud.from_file(filepath)
+
             base_name, _ = os.path.splitext(filename)
+
             # preprocess
             if spectral:
-                pointcloud.laplacian.find_spectrum(spectrum_size=200, set_as_basis=True)
-                pointcloud.basis.use_k = self.k
+                shape.laplacian.find_spectrum(spectrum_size=200, set_as_basis=True)
+                shape.basis.use_k = self.k
 
-            self.pointclouds[filename] = pointcloud
+            self.shapes[filename] = shape
 
             corr_filename = base_name + ".vts"
             if self.correspondences:
@@ -236,7 +114,7 @@ class PointCloudDataset(Dataset):
                         - 1
                     )
                 else:
-                    self.corrs[filename] = np.arange(pointcloud.vertices.shape[0])
+                    self.corrs[filename] = np.arange(shape.vertices.shape[0])
 
     def __getitem__(self, idx):
         """Retrieve a data sample by index.
@@ -246,15 +124,13 @@ class PointCloudDataset(Dataset):
         idx : int
             Index of the item to retrieve.
 
-
         Returns
         -------
         shape_data: dict
             Dictionary containing the shape, the correspondence and the distances if available and required.
-
         """
         filename = self.shape_files[idx]
-        pointcloud = self.pointclouds[filename]
+        shape = self.shapes[filename]
 
         shape_data = {}
 
@@ -272,7 +148,7 @@ class PointCloudDataset(Dataset):
                 if "D" in mat_contents:
                     geod_distance_matrix = mat_contents["D"]
             if geod_distance_matrix is None:
-                metric = ScipyGraphShortestPathMetric(pointcloud)
+                metric = ScipyGraphShortestPathMetric(shape)
                 geod_distance_matrix = metric.dist_matrix()
                 os.makedirs(os.path.dirname(dist_path), exist_ok=True)
                 scipy.io.savemat(
@@ -282,24 +158,72 @@ class PointCloudDataset(Dataset):
 
             shape_data.update({"dist_matrix": gs.array(geod_distance_matrix)})
 
-        pointcloud.vertices = xgs.to_device(pointcloud.vertices, self.device)
-        pointcloud.basis.full_vals = xgs.to_device(
-            pointcloud.basis.full_vals, self.device
-        )
-        pointcloud.basis.full_vecs = xgs.to_device(
-            pointcloud.basis.full_vecs, self.device
-        )
-        pointcloud.laplacian._mass_matrix = xgs.to_device(
-            pointcloud.laplacian._mass_matrix, self.device
+        # Move shape data to device
+        shape.vertices = xgs.to_device(shape.vertices, self.device)
+        shape.basis.full_vals = xgs.to_device(shape.basis.full_vals, self.device)
+        shape.basis.full_vecs = xgs.to_device(shape.basis.full_vecs, self.device)
+        shape.laplacian._mass_matrix = xgs.to_device(
+            shape.laplacian._mass_matrix, self.device
         )
 
-        shape_data.update({"shape": pointcloud})
+        # Only move faces to device for meshes
+        if self.shape_type == "mesh":
+            shape.faces = xgs.to_device(shape.faces, self.device)
+
+        shape_data.update({"shape": shape})
 
         return shape_data
 
     def __len__(self):
         """Get the length of the dataset."""
         return len(self.shape_files)
+
+
+# Convenience classes for backward compatibility
+class MeshDataset(ShapeDataset):
+    """ShapeDataset for loading and preprocessing mesh data."""
+
+    def __init__(
+        self,
+        dataset_dir,
+        spectral=False,
+        distances=False,
+        correspondences=True,
+        k=200,
+        device=None,
+    ):
+        super().__init__(
+            dataset_dir=dataset_dir,
+            shape_type="mesh",
+            spectral=spectral,
+            distances=distances,
+            correspondences=correspondences,
+            k=k,
+            device=device,
+        )
+
+
+class PointCloudDataset(ShapeDataset):
+    """ShapeDataset for loading and preprocessing point cloud data."""
+
+    def __init__(
+        self,
+        dataset_dir,
+        spectral=False,
+        distances=False,
+        correspondences=True,
+        k=200,
+        device=None,
+    ):
+        super().__init__(
+            dataset_dir=dataset_dir,
+            shape_type="pointcloud",
+            spectral=spectral,
+            distances=distances,
+            correspondences=correspondences,
+            k=k,
+            device=device,
+        )
 
 
 class PairsDataset(Dataset):
