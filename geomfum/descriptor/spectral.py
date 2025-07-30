@@ -181,8 +181,19 @@ class WaveKernelFilter(SpectralFilter):
         coefs : array-like, shape=[n_domain, n_eigen]
             Filter coefficients.
         """
-        exp_arg = -xgs.square(gs.log(vals) - domain[:, None]) / (2 * xgs.square(sigma))
+        nonzero_vals = vals[gs.sum(gs.isclose(vals, 0.0)) :]
+        zeros = xgs.to_device(
+            gs.zeros((domain.shape[0], vals.shape[0] - nonzero_vals.shape[0])),
+            device=getattr(nonzero_vals, "device", None),
+        )
+        exp_arg = -xgs.square(gs.log(nonzero_vals) - domain[:, None]) / (
+            2 * xgs.square(sigma)
+        )
         coefs = gs.exp(exp_arg)
+
+        if zeros.shape[1] > 0:
+            coefs = gs.concatenate([zeros, coefs], axis=1)
+
         return coefs
 
 

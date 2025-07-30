@@ -10,8 +10,8 @@ from geomfum._registry import (
     register_landmark_wave_kernel_signature,
     register_laplacian_finder,
     register_mesh_plotter,
+    register_neighbor_finder,
     register_poisson_sampler,
-    register_sinkhorn_neighbor_finder,
     register_softmax_neighbor_finder,
     register_wave_kernel_signature,
 )
@@ -96,13 +96,15 @@ register_feature_extractor(
 )
 
 register_feature_extractor(
-    "transformer", "TransformerFeatureExtractor", requires="torch", as_default=False,
+    "transformer",
+    "TransformerFeatureExtractor",
+    requires="torch",
+    as_default=False,
 )
 
-register_sinkhorn_neighbor_finder(
+register_neighbor_finder(
     "pot", "PotSinkhornNeighborFinder", requires="ot", as_default=True
 )
-
 register_heat_distance_metric(
     "pp3d", "Pp3dHeatDistanceMetric", requires="potpourri3d", as_default=True
 )
