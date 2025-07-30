@@ -5,7 +5,10 @@ by Nicholas Sharp.
 """
 
 import geomstats.backend as gs
+import geomfum.backend as xgs
+
 import potpourri3d as pp3d
+
 
 from geomfum.metric import FinitePointSetMetric
 from geomfum.metric._base import _SingleDispatchMixins
@@ -18,7 +21,7 @@ class Pp3dHeatDistanceMetric(_SingleDispatchMixins, FinitePointSetMetric):
     ----------
     shape : TriangleMesh
         Mesh.
-    solver_class : pp3d.HeatMethodDistanceSolver
+    solver : pp3d.HeatMethodDistanceSolver
         Heat method distance solver class. '  '
 
     References
@@ -28,14 +31,15 @@ class Pp3dHeatDistanceMetric(_SingleDispatchMixins, FinitePointSetMetric):
         https://doi.org/10.1145/3131280
     """
 
-    def __init__(self, shape, solver_class=None):
+    def __init__(self, shape, solver=None):
         super().__init__(shape)
-        if solver_class is None:
-            solver_class = pp3d.MeshHeatMethodDistanceSolver
+        if solver is None:
+            solver = pp3d.MeshHeatMethodDistanceSolver(
+                gs.to_numpy(xgs.to_device(shape.vertices, "cpu")),
+                gs.to_numpy(xgs.to_device(shape.faces, "cpu")),
+            )
 
-        self.solver = solver_class(
-            gs.to_numpy(shape.vertices), gs.to_numpy(shape.faces)
-        )
+        self.solver = solver
 
     # TO DO: Dispatch this
     def dist_matrix(self):
@@ -111,7 +115,11 @@ class Pp3dMeshHeatDistanceMetric(Pp3dHeatDistanceMetric):
     """
 
     def __init__(self, shape):
-        super().__init__(shape, solver_class=pp3d.MeshHeatMethodDistanceSolver)
+        solver = pp3d.MeshHeatMethodDistanceSolver(
+            gs.to_numpy(xgs.to_device(shape.vertices, "cpu")),
+            gs.to_numpy(xgs.to_device(shape.faces, "cpu")),
+        )
+        super().__init__(shape, solver=solver)
 
 
 class Pp3dPointSetHeatDistanceMetric(Pp3dHeatDistanceMetric):
@@ -128,4 +136,7 @@ class Pp3dPointSetHeatDistanceMetric(Pp3dHeatDistanceMetric):
     """
 
     def __init__(self, shape):
-        super().__init__(shape, solver_class=pp3d.PointCloudHeatSolver)
+        solver = pp3d.PointCloudHeatSolver(
+            gs.to_numpy(xgs.to_device(shape.vertices, "cpu"))
+        )
+        super().__init__(shape, solver=solver)

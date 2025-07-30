@@ -4,7 +4,10 @@ import abc
 
 import geomstats.backend as gs
 
-from geomfum._registry import HeatDistanceMetricRegistry, WhichRegistryMixins
+from geomfum._registry import (
+    HeatDistanceMetricRegistry,
+    MeshWhichRegistryMixins,
+)
 
 
 class Metric(abc.ABC):
@@ -135,7 +138,7 @@ class VertexEuclideanMetric(FinitePointSetMetric):
         return self.dist_from_source(gs.arange(self._shape.n_vertices))[0]
 
 
-class HeatDistanceMetric(WhichRegistryMixins):
+class HeatDistanceMetric(MeshWhichRegistryMixins):
     """Heat distance metric between vertices of a mesh.
 
     References
