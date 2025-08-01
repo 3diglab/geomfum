@@ -12,7 +12,6 @@ from geomfum.operator import (
 )
 from geomfum.shape.shape_utils import (
     compute_edge_tangent_vectors,
-    compute_gradient_matrix_fem,
     compute_tangent_frames,
 )
 
@@ -48,7 +47,6 @@ class TriangleMesh(Shape):
         self._vertex_normals = None
         self._vertex_tangent_frames = None
         self._edge_tangent_vectors = None
-        self._gradient_matrix = None
         self._dist_matrix = None
         self.metric = None
 
@@ -303,29 +301,6 @@ class TriangleMesh(Shape):
             )
             self._edge_tangent_vectors = edge_tangent_vectors
         return self._edge_tangent_vectors
-
-    @property
-    def gradient_matrix(self):
-        # TODO: Implement this as operator?
-        """Compute the gradient operator as a complex sparse matrix.
-
-        This code locally fits a linear function to the scalar values at each vertex and its neighbors, extracts the gradient in the tangent plane, and assembles the global sparse matrix that acts as the discrete gradient operator on the mesh.
-
-        Returns
-        -------
-        grad_op : xgs.sparse.csc_matrix, shape=[n_vertices, n_vertices]
-        grad_op : xgs.sparse.csc_matrix, shape=[n_vertices, n_vertices]
-            Complex sparse matrix representing the gradient operator.
-            The real part corresponds to the X component in the local tangent frame,
-            and the imaginary part corresponds to the Y component.
-        """
-        if self._gradient_matrix is None:
-            self._gradient_matrix = compute_gradient_matrix_fem(
-                self.vertices,
-                self.edges,
-                self.edge_tangent_vectors,
-            )
-        return self._gradient_matrix
 
     @property  # ToDo
     def dist_matrix(self):

@@ -191,14 +191,12 @@ class DiffusionnetFeatureExtractor(BaseFeatureExtractor, nn.Module):
         gradY : torch.SparseTensor
             Imaginary part of gradient matrix [..., n_vertices, n_vertices].
         """
-        assert k > 0, (
-            f"Number of eigenvalues/vectors should be positive, bug get {k}"
-        )
+        assert k > 0, f"Number of eigenvalues/vectors should be positive, bug get {k}"
 
         frames = mesh.vertex_tangent_frames
         L, M = mesh.laplacian.find()
         evals, evecs = mesh.laplacian.find_spectrum(spectrum_size=k)
-        grad = mesh.gradient_matrix
+        grad = mesh.gradient.gradient_matrix
         grad_scipy = xgs.sparse.to_scipy_csc(grad)
         frames = xgs.to_torch(frames)
         massvec = torch.tensor(xgs.sparse.to_scipy_csc(M).diagonal()).to(

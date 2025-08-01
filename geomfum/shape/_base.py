@@ -5,7 +5,7 @@ import logging
 
 import geomstats.backend as gs
 
-from geomfum.operator import Laplacian
+from geomfum.operator import Gradient, Laplacian
 
 
 class Shape(abc.ABC):
@@ -14,7 +14,7 @@ class Shape(abc.ABC):
 
         self._basis = None
         self.laplacian = Laplacian(self)
-
+        self.gradient = Gradient(self)
         self.landmark_indices = None
 
     def equip_with_operator(self, name, Operator, allow_overwrite=True, **kwargs):
