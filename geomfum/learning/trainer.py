@@ -96,13 +96,13 @@ class DeepFunctionalMapTrainer:
             for idx in indices:
                 pair = self.train_set[idx]  # Access item by index
                 self.optimizer.zero_grad()
-                mesh_a = pair["source"]["mesh"]
-                mesh_b = pair["target"]["mesh"]
-                outputs = self.model(mesh_a, mesh_b)
+                shape_a = pair["source"]["shape"]
+                shape_b = pair["target"]["shape"]
+                outputs = self.model(shape_a, shape_b)
                 outputs.update(
                     {
-                        "mesh_a": mesh_a,
-                        "mesh_b": mesh_b,
+                        "shape_a": shape_a,
+                        "shape_b": shape_b,
                     }
                 )
                 if get_dataset_attr(self.train_set.shape_data, "correspondences"):
@@ -138,13 +138,13 @@ class DeepFunctionalMapTrainer:
         with torch.no_grad():
             with tqdm(total=len(self.val_set), desc="Validation", unit="batch") as pbar:
                 for pair in self.val_set:
-                    mesh_a = pair["source"]["mesh"]
-                    mesh_b = pair["target"]["mesh"]
-                    outputs = self.model(mesh_a, mesh_b)
+                    shape_a = pair["source"]["shape"]
+                    shape_b = pair["target"]["shape"]
+                    outputs = self.model(shape_a, shape_b)
                     outputs.update(
                         {
-                            "mesh_a": mesh_a,
-                            "mesh_b": mesh_b,
+                            "shape_a": shape_a,
+                            "shape_b": shape_b,
                         }
                     )
                     if get_dataset_attr(self.val_set.shape_data, "correspondences"):
