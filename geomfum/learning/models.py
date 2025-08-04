@@ -7,7 +7,7 @@ References
 """
 
 import abc
-
+import geomfum.backend as xgs
 import torch.nn as nn
 
 from geomfum.convert import (
@@ -167,8 +167,12 @@ class RobustFMNet(BaseModel):
         fmap12_desc = mesh_b.basis.pinv @ (P21 @ mesh_a.basis.vecs)
 
         if not self.training:
-            p2p21 = self.converter(fmap12, mesh_a.basis, mesh_b.basis)
-            p2p12 = self.converter(fmap21, mesh_b.basis, mesh_a.basis)
+            p2p21 = xgs.to_device(
+                self.converter(fmap12, mesh_a.basis, mesh_b.basis), "cpu"
+            )
+            p2p12 = xgs.to_device(
+                self.converter(fmap21, mesh_b.basis, mesh_a.basis), "cpu"
+            )
 
         if as_dict:
             result = {

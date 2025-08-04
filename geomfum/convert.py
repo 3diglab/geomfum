@@ -158,6 +158,23 @@ class SoftmaxNeighborFinder(NeighborFinder, nn.Module):
         nn.Module.__init__(self)
         self.tau = tau
 
+    def __call__(self, X, Y):
+        """Return indices of the points in `X` nearest to the points in `Y`.
+
+        Parameters
+        ----------
+        X : array-like, shape=[n_points_x, n_features]
+            Reference points.
+        Y : array-like, shape=[n_points_y, n_features]
+            Query points.
+
+        Returns
+        -------
+        neigs : array-like, shape=[n_points_x, n_neighbors]
+            Indices of the nearest neighbors in Y for each point in X.
+        """
+        return self.forward(X, Y)
+
     def forward(self, X, Y):
         """Find k nearest neighbors using softmax regularization.
 
