@@ -71,3 +71,13 @@ class PsMeshPlotter(ShapePlotter):
     def show(self):
         """Display plot."""
         self._plotter.show()
+
+    def save(self, filename):
+        """Save plot to file.
+
+        Parameters
+        ----------
+        filename : str | Path | io.BytesIO
+            Location to write file to.
+        """
+        self._plotter.screenshot(filename)

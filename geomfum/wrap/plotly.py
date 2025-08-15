@@ -81,3 +81,13 @@ class PlotlyMeshPlotter(ShapePlotter):
     def show(self):
         """Display plot."""
         self._plotter.show()
+
+    def save(self, filename):
+        """Save plot to file.
+
+        Parameters
+        ----------
+        filename : str
+            Location to write file to.
+        """
+        self._plotter.write_image(filename)
