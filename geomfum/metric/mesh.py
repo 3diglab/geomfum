@@ -379,7 +379,7 @@ class HeatDistanceMetric(WhichRegistryMixins):
 
     References
     ----------
-    .. [CWW2017] Crane, K., Weischedel, C., Wardetzky, M., 2017.
+    .. [CWW2013] Crane, K., Weischedel, C., Wardetzky, M., 2017.
         The heat method for distance computation. Commun. ACM 60, 90–99.
         https://doi.org/10.1145/3131280
     """
