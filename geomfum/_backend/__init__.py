@@ -23,6 +23,7 @@ BACKEND_ATTRIBUTES = {
         "to_torch",
         "diag",
         "to_device",
+        "pinv",
     ],
     "sparse": [
         "to_dense",

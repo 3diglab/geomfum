@@ -36,3 +36,8 @@ def diag(array):
         return _torch.diag(_torch.diagonal(array))
     else:
         raise ValueError("Input must be a 1D or 2D tensor.")
+
+
+def pinv(array):
+    """Compute the pseudo-inverse of a tensor."""
+    return _torch.linalg.pinv(array)

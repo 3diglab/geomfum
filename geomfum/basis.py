@@ -3,7 +3,7 @@
 import abc
 
 import geomstats.backend as gs
-
+import geomfum.backend as xgs
 import geomfum.linalg as la
 
 
@@ -28,6 +28,7 @@ class EigenBasis(Basis):
         self.full_vals = vals
         self.full_vecs = vecs
         self.use_k = use_k
+        self._pinv = None
 
         # NB: assumes sorted
         self._n_zeros = gs.sum(gs.isclose(vals, 0.0))
@@ -97,6 +98,19 @@ class EigenBasis(Basis):
             Spectrum size.
         """
         return len(self.full_vals)
+
+    @property
+    def pinv(self):
+        """Inverse of the eigenvectors matrix.
+
+        Return
+        ------
+        pinv : array-like, shape=[spectrum_size, n_vertices]
+            Inverse of the eigenvectors matrix.
+        """
+        if self._pinv is None:
+            self._pinv = xgs.pinv(self.vecs)
+        return self._pinv
 
     def truncate(self, spectrum_size):
         """Truncate basis.

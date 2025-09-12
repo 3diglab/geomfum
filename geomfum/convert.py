@@ -294,7 +294,7 @@ class FmFromP2pConverter(BaseFmFromP2pConverter):
         evects1_pb = basis_a.vecs[p2p, :]
 
         if self.pseudo_inverse:
-            return basis_b.vecs.T @ (basis_b._shape.laplacian.mass_matrix @ evects1_pb)
+            return basis_b.pinv @ evects1_pb
 
         return gs.from_numpy(scipy.linalg.lstsq(basis_b.vecs, evects1_pb)[0])
 

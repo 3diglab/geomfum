@@ -32,3 +32,8 @@ def to_torch(a):
 
 def diag(array):
     return _np.diag(array)
+
+
+def pinv(array):
+    """Compute the pseudo-inverse of a tensor."""
+    return _np.linalg.pinv(array)
