@@ -1,6 +1,7 @@
-.. image:: GeomFuMlogo.png
-  :width: 800
-  :alt: GeomFuM logo
+.. image:: https://raw.githubusercontent.com/3diglab/geomfum/main/GeomFuMlogo.png
+   :width: 800
+   :alt: GeomFuM logo
+
 **GeomFuM** is a Modular Python Package for Machine Learning with `Functional Maps <https://dl.acm.org/doi/10.1145/2185520.2185526>`_. 
 Have a look at our `Software Paper Preprint <https://drive.google.com/file/d/1zr7ml2QWEOOlS9S3imER_HBuvYwMm3oo/view?usp=sharing>`_.
 
@@ -23,16 +24,19 @@ Or the classic pipeline: ``clone + pip install``.
 Some functionality requires packages that are not published on PyPI and must be installed manually:
 
 - `Rematching`: 
+
 .. code-block:: bash
 
     pip install git+https://github.com/filthynobleman/rematching.git@python-binding
 
 - `Geopext`: 
+
 .. code-block:: bash
 
     pip install git+https://github.com/luisfpereira/geopext.git@2b7a7be1a8fdc6e5755e5f4bda88bc284065e829
 
 - `Polpo`: 
+
 .. code-block:: bash
 
     pip install git+https://github.com/geometric-intelligence/polpo.git@main
@@ -75,8 +79,11 @@ We welcome contributions from the community!
 If you have suggestions, bug reports, or want to improve the code or documentation, feel free to:
 
 - Open an issue
+
 - Submit a pull request
+
 - Improve or add new examples/notebooks
+
 
 Please follow our `contribution guidelines <https://dig-air.github.io/geomfum.github.io/contributing.html>`_ and adhere to best practices for clean, modular, and well-documented code.
 
