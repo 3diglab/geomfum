@@ -3,7 +3,13 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-authors = [{ name = "Luís F. Pereira", email = "luisfgper@gmail.com" }]
+authors = [
+    { name = "Giulio Viganò", email = "g.vigano36@campus.unimib.it" },
+    { name = "Giorgio Longari", email = "giorgio.longari@unimib.it" },
+    { name = "Luís F. Pereira", email = "luisfpereira@ucsb.edu" },
+    { name = "Nina Miolane", email = "ninamiolane@ucsb.edu" },
+    { name = "Simone Melzi", email = "simone.melzi@unimib.it" }
+]
 name = "geomfum"
 dynamic = ["version"]
 readme = "README.rst"
@@ -52,7 +58,7 @@ polyscope = ["polyscope"]
 plotting-all = ["geomfum[plotly,pyvista,polyscope]"]
 
 [project.urls]
-repository = "http://github.com/DiG-AIR/geomfum"
+repository = "http://github.com/3diglab/geomfum"
 
 [tool.setuptools.dynamic]
 version = { attr = "geomfum.__version__" }

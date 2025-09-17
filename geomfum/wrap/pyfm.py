@@ -215,7 +215,6 @@ class PyfmLandmarkWaveKernelSignature(SpectralDescriptor):
             )
 
         domain, sigma = self.domain(shape) if callable(self.domain) else (self.domain, self.sigma)
-        print(domain, sigma)
         return pyFM.signatures.lm_WKS(
             shape.basis.vals,
             shape.basis.vecs,

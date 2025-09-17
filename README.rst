@@ -9,7 +9,7 @@ Installation
 
 ::
     
-    pip install geomfum@git+https://github.com/DiG-AIR/geomfum.git@main
+    pip install geomfum@git+https://github.com/3diglab/geomfum.git@main
 
 
 Or the classic pipeline: ``clone + pip install``.
@@ -86,6 +86,12 @@ List of Implemented Papers
 12. `Informative Descriptor Preservation via Commutativity for Shape Matching <https://www.lix.polytechnique.fr/Labo/Ovsjanikov.Maks/papers/fundescEG17.pdf>`_
 13. `DiffusionNet: Discretization Agnostic Learning on Surfaces <https://arxiv.org/abs/2012.00888>`_
 14. `PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation <https://arxiv.org/abs/1612.00593>`_
+
+Acknowledgement
+---------------
+We thank the geometry processing and functional maps community for their foundational research and ongoing contributions that inspired this work.
+This work was partially supported by the European Union (Next Generation EU), MUR (REGAINS), NVIDIA Academic Hardware Grant, and the NSF (MRSEC and CAREER awards). 
+
 
 
 **Have FuM!**
