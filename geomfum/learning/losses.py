@@ -1,4 +1,4 @@
-"""Losses for functional maps."""
+"""Losses for Deep Functional Maps training."""
 
 import torch
 import torch.nn as nn
@@ -201,90 +201,6 @@ class LaplacianCommutativityLoss(nn.Module):
             torch.einsum("bc,c->bc", fmap12, shape_b.basis.vals),
             torch.einsum("b,bc->bc", shape_a.basis.vals, fmap12),
         )
-
-
-class Fmap_Supervision(nn.Module):
-    """
-    Computes the supervision loss between predicted and ground truth functional maps.
-
-    Parameters
-    ----------
-    weight : float, optional
-        Weight for the loss term (default: 1).
-    """
-
-    def __init__(self, weight=1):
-        super().__init__()
-        self.weight = weight
-
-    required_inputs = ["fmap12", "fmap12_sup"]
-
-    def forward(self, fmap12, fmap12_sup):
-        """
-        Forward pass.
-
-        Parameters
-        ----------
-        fmap12 : torch.Tensor
-            Functional map tensor from source to target shape, of shape (batch_size, dim_out, dim_in).
-        fmap12_sup : torch.Tensor
-            Supervised functional map tensor from source to target shape, of shape (batch_size, dim_out, dim_in).
-
-        Returns
-        -------
-        torch.Tensor
-            Scalar tensor representing the weighted squared Frobenius norm of the difference between predicted and supervised functional maps.
-        """
-        metric = SquaredFrobeniusLoss()
-        return self.weight * metric(fmap12, fmap12_sup)
-
-
-class DescriptorCommutativityLoss(nn.Module):
-    """
-    Computes the descriptor commutativity loss for learning scenarios.
-
-    This loss enforces that functional maps commute with multiplication operators
-    derived from descriptors. It's equivalent to OperatorCommutativityEnforcing.from_multiplication
-    but designed for PyTorch training.
-
-    Parameters
-    ----------
-    weight: float, optional
-        Weight for the loss term (default: 1).
-    """
-
-    def __init__(self, weight=1):
-        super().__init__()
-        self.weight = weight
-
-    required_inputs = ["fmap12", "fmap21", "desc_a", "desc_b", "mesh_a", "mesh_b"]
-
-    def _compute_multiplication_operators(self, basis, desc):
-        """
-        Compute multiplication operators for descriptors.
-
-        Parameters
-        ----------
-        basis : Basis
-            Basis object containing eigenvectors and pseudo-inverse.
-        desc : torch.Tensor
-            Descriptors of shape (num_vertices, num_descriptors).
-
-        Returns
-        -------
-        operators : torch.Tensor
-            Multiplication operators of shape (num_descriptors, spectrum_size, spectrum_size).
-        """
-        # desc: (num_vertices, num_descriptors)
-        # basis.vecs: (num_vertices, spectrum_size)
-        # basis.pinv: (spectrum_size, num_vertices)
-
-        operators = []
-        for desc_i in desc:
-            operator = basis.pinv @ la.rowwise_scaling(desc_i, basis.vecs)
-            operators.append(operator)
-
-        return torch.stack(operators)  # (num_descriptors, spectrum_size, spectrum_size)
 
 
 class Fmap_Supervision(nn.Module):
