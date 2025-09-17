@@ -20,7 +20,23 @@ Or the classic pipeline: ``clone + pip install``.
 
 - Make sure all their requirements are installed.
 
-- For `pyRMT`, follow the instructions `here <https://github.com/filthynobleman/rematching/tree/python-binding>`_.
+Some functionality requires packages that are not published on PyPI and must be installed manually:
+
+- `Rematching`: 
+.. code-block:: bash
+
+    pip install git+https://github.com/filthynobleman/rematching.git@python-binding
+
+- `Geopext`: 
+.. code-block:: bash
+
+    pip install git+https://github.com/luisfpereira/geopext.git@2b7a7be1a8fdc6e5755e5f4bda88bc284065e829
+
+- `Polpo`: 
+.. code-block:: bash
+
+    pip install git+https://github.com/geometric-intelligence/polpo.git@main
+
 
 How to use
 ----------
