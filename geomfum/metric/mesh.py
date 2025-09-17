@@ -32,7 +32,9 @@ def to_nx_edge_graph(shape):
     weighted_edges = [
         (vertex_a_, vertex_b_, length)
         for vertex_a_, vertex_b_, length in zip(
-            gs.to_numpy(vertex_a), gs.to_numpy(vertex_b), gs.to_numpy(lengths)
+            gs.to_numpy(xgs.to_device(vertex_a, "cpu")),
+            gs.to_numpy(xgs.to_device(vertex_b, "cpu")),
+            gs.to_numpy(xgs.to_device(lengths, "cpu")),
         )
     ]
 

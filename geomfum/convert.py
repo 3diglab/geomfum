@@ -5,6 +5,7 @@ import abc
 import geomstats.backend as gs
 import scipy
 import torch
+import torch.nn as nn
 from sklearn.neighbors import NearestNeighbors
 
 import geomfum.backend as xgs
@@ -137,6 +138,86 @@ class P2pFromFmConverter(BaseP2pFromFmConverter):
         p2p = self.neighbor_finder(emb2, emb1).flatten()
 
         return p2p
+
+
+class SoftmaxNeighborFinder(NeighborFinder, nn.Module):
+    """Softmax neighbor finder.
+
+    Finds neighbors using softmax regularization.
+
+    Parameters
+    ----------
+    n_neighbors : int
+        Number of neighbors.
+    tau : float
+        Temperature parameter for softmax regularization.
+    """
+
+    def __init__(self, n_neighbors=1, tau=0.07):
+        BaseNeighborFinder.__init__(self, n_neighbors=n_neighbors)
+        nn.Module.__init__(self)
+        self.tau = tau
+
+    def __call__(self, X, Y):
+        """Return indices of the points in `X` nearest to the points in `Y`.
+
+        Parameters
+        ----------
+        X : array-like, shape=[n_points_x, n_features]
+            Reference points.
+        Y : array-like, shape=[n_points_y, n_features]
+            Query points.
+
+        Returns
+        -------
+        neigs : array-like, shape=[n_points_x, n_neighbors]
+            Indices of the nearest neighbors in Y for each point in X.
+        """
+        return self.forward(X, Y)
+
+    def forward(self, X, Y):
+        """Find k nearest neighbors using softmax regularization.
+
+        Parameters
+        ----------
+        X : array-like, shape=[n_points_x, n_features]
+            Reference points.
+        Y : array-like, shape=[n_points_y, n_features]
+            Query points.
+
+        Returns
+        -------
+        neigs : array-like, shape=[n_points_x, n_neighbors]
+            Indices of the nearest neighbors in Y for each point in X.
+        """
+        P = self.softmax_matrix(X, Y)
+        # Get the indices of the top-k (self.n_neighbors) highest values for each row
+        indices = torch.topk(P, self.n_neighbors, dim=-1)[1]
+        return indices
+
+    def softmax_matrix(self, X, Y):
+        """Compute the permutation matrix P as a softmax of the similarity.
+
+        Parameters
+        ----------
+        X : array-like, shape=[n_points_x, n_features]
+            Reference points.
+        Y : array-like, shape=[n_points_y, n_features]
+            Query points.
+
+        Returns
+        -------
+        P : array-like, shape=[n_points_y, n_points_x]
+            Permutation matrix, where each row sums to 1.
+        """
+        similarity = torch.mm(Y, X.T)
+
+        P = torch.exp(
+            similarity / self.tau
+            - torch.logsumexp(similarity / self.tau, dim=-1, keepdim=True)
+        )
+
+        return P
 
 
 class SinkhornP2pFromFmConverter(P2pFromFmConverter):

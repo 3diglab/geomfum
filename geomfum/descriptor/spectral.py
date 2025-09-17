@@ -323,6 +323,6 @@ class LandmarkWaveKernelSignature(WhichRegistryMixins, SpectralDescriptor):
             domain=domain or WksDefaultDomain(n_domain=n_domain, sigma=sigma),
             scale=scale,
             sigma=sigma,
-            landmarks=True,
             k=k,
+            landmarks=True,
         )
