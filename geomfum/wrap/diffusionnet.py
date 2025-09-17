@@ -17,6 +17,7 @@ import torch.nn as nn
 import geomfum.backend as xgs
 import geomfum.backend as xgs
 from geomfum.descriptor.learned import BaseFeatureExtractor
+from geomfum.shape import TriangleMesh
 
 
 # TODO: Implement betching operations. for now diffusionnet accept just one mesh as input
@@ -128,14 +129,17 @@ class DiffusionnetFeatureExtractor(BaseFeatureExtractor, nn.Module):
         """
         # Support both Shape and dict
         v = xgs.to_torch(shape.vertices).float().to(self.device)
-        f = xgs.to_torch(shape.faces).int().to(self.device)
-
+        if isinstance(shape, TriangleMesh):
+            f = xgs.to_torch(shape.faces).int().to(self.device)
+            f = f.unsqueeze(0).to(torch.float32)
+        else:
+            f = None
         # Compute spectral operators
         frames, mass, L, evals, evecs, gradX, gradY = self._get_operators(
             shape, k=self.k
         )
         v = v.unsqueeze(0).to(torch.float32)
-        f = f.unsqueeze(0).to(torch.float32)
+
         frames = frames.unsqueeze(0).to(torch.float32)
         mass = mass.unsqueeze(0).to(torch.float32)
         L = L.unsqueeze(0).to(torch.float32)
@@ -187,14 +191,12 @@ class DiffusionnetFeatureExtractor(BaseFeatureExtractor, nn.Module):
         gradY : torch.SparseTensor
             Imaginary part of gradient matrix [..., n_vertices, n_vertices].
         """
-        assert k > 0, (
-            f"Number of eigenvalues/vectors should be positive, bug get {k}"
-        )
+        assert k > 0, f"Number of eigenvalues/vectors should be positive, bug get {k}"
 
         frames = mesh.vertex_tangent_frames
         L, M = mesh.laplacian.find()
         evals, evecs = mesh.laplacian.find_spectrum(spectrum_size=k)
-        grad = mesh.gradient_matrix
+        grad = mesh.gradient.gradient_matrix
         grad_scipy = xgs.sparse.to_scipy_csc(grad)
         frames = xgs.to_torch(frames)
         massvec = torch.tensor(xgs.sparse.to_scipy_csc(M).diagonal()).to(
