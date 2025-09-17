@@ -257,7 +257,7 @@ class DescriptorCommutativityLoss(nn.Module):
         super().__init__()
         self.weight = weight
 
-    required_inputs = ["fmap12", "fmap21", "desc_a", "desc_b", "mesh_a", "mesh_b"]
+    required_inputs = ["fmap12", "fmap21", "desc_a", "desc_b", "shape_a", "shape_b"]
 
     def _compute_multiplication_operators(self, basis, desc):
         """
@@ -286,7 +286,7 @@ class DescriptorCommutativityLoss(nn.Module):
 
         return torch.stack(operators)  # (num_descriptors, spectrum_size, spectrum_size)
 
-    def forward(self, fmap12, fmap21, desc_a, desc_b, mesh_a, mesh_b):
+    def forward(self, fmap12, fmap21, desc_a, desc_b, shape_a, shape_b):
         """
         Forward pass.
 
@@ -300,9 +300,9 @@ class DescriptorCommutativityLoss(nn.Module):
             Descriptors for shape A of shape (num_vertices_a, num_descriptors).
         desc_b : torch.Tensor
             Descriptors for shape B of shape (num_vertices_b, num_descriptors).
-        mesh_a : TriangleMesh
+        shape_a : TriangleMesh or PointCloud
             TriangleMesh object containing source shape information.
-        mesh_b : TriangleMesh
+        shape_b : TriangleMesh or PointCloud
             TriangleMesh object containing target shape information.
 
         Returns
@@ -313,8 +313,8 @@ class DescriptorCommutativityLoss(nn.Module):
         metric = SquaredFrobeniusLoss()
 
         # Compute multiplication operators for each descriptor
-        oper_a = self._compute_multiplication_operators(mesh_a.basis, desc_a)
-        oper_b = self._compute_multiplication_operators(mesh_b.basis, desc_b)
+        oper_a = self._compute_multiplication_operators(shape_a.basis, desc_a)
+        oper_b = self._compute_multiplication_operators(shape_b.basis, desc_b)
 
         total_loss = 0
         # Compute commutativity loss for each descriptor
