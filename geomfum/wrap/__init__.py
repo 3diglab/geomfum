@@ -34,9 +34,6 @@ register_laplacian_finder(
 
 register_laplacian_finder(True, "igl", "IglMeshLaplacianFinder", requires="igl")
 
-register_laplacian_finder(
-    True, "geopext", "GeopextMeshLaplacianFinder", requires="geopext"
-)
 
 register_laplacian_finder(
     False, "robust", "RobustPointCloudLaplacianFinder", requires="robust_laplacian"
