@@ -7,7 +7,12 @@ Have a look at our `Software Paper Preprint <https://drive.google.com/file/d/1zr
 
 Installation
 ------------
+We have a pipl package that you can install with the following command from your terminal
+::
+    
+    pip install geomfum
 
+Or directly from the GitHub repository
 ::
     
     pip install geomfum@git+https://github.com/3diglab/geomfum.git@main
@@ -15,7 +20,15 @@ Installation
 
 Or the classic pipeline: ``clone + pip install``.
 
+Make sure you have installed the most recent version of Geomstats to correctly handle the backend.
+
+::
+    pip install geomstats@git+https://github.com/geomstats/geomstats.git@main
+
+
 ⚠️ **ISSUES**
+
+
 
 - Installation issues may arise from dependencies relying on C++ (particularly `robust_laplacian <https://pypi.org/project/robust-laplacian/>`_).
 
@@ -29,11 +42,6 @@ Some functionality requires packages that are not published on PyPI and must be 
 
     pip install git+https://github.com/filthynobleman/rematching.git@python-binding
 
-- `Geopext`: 
-
-.. code-block:: bash
-
-    pip install git+https://github.com/luisfpereira/geopext.git@2b7a7be1a8fdc6e5755e5f4bda88bc284065e829
 
 - `Polpo`: 
 
