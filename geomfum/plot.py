@@ -7,7 +7,11 @@ we define general functions that works with any library implemented
 
 import abc
 
-from geomfum._registry import MeshPlotterRegistry, WhichRegistryMixins
+from geomfum._registry import (
+    MeshPlotterRegistry,
+    WhichRegistryMixins,
+    PointCloudPlotterRegistry,
+)
 
 
 class ShapePlotter(abc.ABC):
@@ -18,17 +22,13 @@ class ShapePlotter(abc.ABC):
     """
 
     @abc.abstractmethod
-    def add_mesh(self, mesh):
-        """Add mesh to plot."""
-
-    @abc.abstractmethod
     def show(self):
         """Display plot."""
 
     def set_vertex_scalars(self, scalars):
         """Set vertex scalars on mesh."""
         raise NotImplementedError("Not implemented for this plotter.")
-    
+
     def highlight_vertices(self, coords, color, size):
         """Highlight vertices on mesh."""
         raise NotImplementedError("Not implemented for this plotter.")
@@ -38,3 +38,9 @@ class MeshPlotter(WhichRegistryMixins, ShapePlotter):
     """Plotting object to display meshes."""
 
     _Registry = MeshPlotterRegistry
+
+
+class PointCloudPlotter(WhichRegistryMixins, ShapePlotter):
+    """Plotting object to display point clouds."""
+
+    _Registry = PointCloudPlotterRegistry

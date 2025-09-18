@@ -29,7 +29,9 @@ class PsMeshPlotter(ShapePlotter):
         mesh : TriangleMesh
             Mesh to be plotted.
         """
-        self._plotter.register_surface_mesh(self._name, gs.to_numpy(mesh.vertices), gs.to_numpy( mesh.faces))
+        self._plotter.register_surface_mesh(
+            self._name, gs.to_numpy(mesh.vertices), gs.to_numpy(mesh.faces)
+        )
         return self
 
     def set_vertex_scalars(self, scalars, name="scalars"):
@@ -51,7 +53,12 @@ class PsMeshPlotter(ShapePlotter):
         )
         return self
 
-    def highlight_vertices(self, coords, color=(1.0, 0.0, 0.0), size=0.01,):
+    def highlight_vertices(
+        self,
+        coords,
+        color=(1.0, 0.0, 0.0),
+        size=0.01,
+    ):
         """
         Highlight vertices on a mesh using Polyscope by adding a point cloud.
 
@@ -64,8 +71,8 @@ class PsMeshPlotter(ShapePlotter):
         radius : float
             Radius of the rendered points (visual size).
         """
-        name = 'Highlighted_points'
-        self._plotter.register_point_cloud(name, coords, radius = size, color = color)
+        name = "Highlighted_points"
+        self._plotter.register_point_cloud(name, coords, radius=size, color=color)
         return self
 
     def show(self):
