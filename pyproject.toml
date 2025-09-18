@@ -43,9 +43,6 @@ rematching = [
 ]
 sinkhorn = ["POT"]
 opt = ["geomfum[lapl,metric,sampling,rematching,sinkhorn]"]
-fun = [
-    "geopext@git+https://github.com/luisfpereira/geopext.git@2b7a7be1a8fdc6e5755e5f4bda88bc284065e829",
-]
 test-scripts = ["nbformat", "nbconvert", "ipykernel", "ipython", "pyvista", "plotly"]
 test = [
     "pytest",
