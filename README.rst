@@ -1,12 +1,18 @@
-.. image:: GeomFuMlogo.png
-  :width: 800
-  :alt: GeomFuM logo
+.. image:: https://raw.githubusercontent.com/3diglab/geomfum/main/GeomFuMlogo.png
+   :width: 800
+   :alt: GeomFuM logo
+
 **GeomFuM** is a Modular Python Package for Machine Learning with `Functional Maps <https://dl.acm.org/doi/10.1145/2185520.2185526>`_. 
 Have a look at our `Software Paper Preprint <https://drive.google.com/file/d/1zr7ml2QWEOOlS9S3imER_HBuvYwMm3oo/view?usp=sharing>`_.
 
 Installation
 ------------
+We have a pipl package that you can install with the following command from your terminal
+::
+    
+    pip install geomfum
 
+Or directly from the GitHub repository
 ::
     
     pip install geomfum@git+https://github.com/3diglab/geomfum.git@main
@@ -14,13 +20,35 @@ Installation
 
 Or the classic pipeline: ``clone + pip install``.
 
+Make sure you have installed the most recent version of Geomstats to correctly handle the backend.
+
+::
+    pip install geomstats@git+https://github.com/geomstats/geomstats.git@main
+
+
 ⚠️ **ISSUES**
+
+
 
 - Installation issues may arise from dependencies relying on C++ (particularly `robust_laplacian <https://pypi.org/project/robust-laplacian/>`_).
 
 - Make sure all their requirements are installed.
 
-- For `pyRMT`, follow the instructions `here <https://github.com/filthynobleman/rematching/tree/python-binding>`_.
+Some functionality requires packages that are not published on PyPI and must be installed manually:
+
+- `Rematching`: 
+
+.. code-block:: bash
+
+    pip install git+https://github.com/filthynobleman/rematching.git@python-binding
+
+
+- `Polpo`: 
+
+.. code-block:: bash
+
+    pip install git+https://github.com/geometric-intelligence/polpo.git@main
+
 
 How to use
 ----------
@@ -59,8 +87,11 @@ We welcome contributions from the community!
 If you have suggestions, bug reports, or want to improve the code or documentation, feel free to:
 
 - Open an issue
+
 - Submit a pull request
+
 - Improve or add new examples/notebooks
+
 
 Please follow our `contribution guidelines <https://dig-air.github.io/geomfum.github.io/contributing.html>`_ and adhere to best practices for clean, modular, and well-documented code.
 

@@ -31,25 +31,20 @@ dependencies = [
     "meshio",
     "pyfmaps",
     "torch",
-    "geomstats@git+https://github.com/geomstats/geomstats.git@main",
+    "geomstats",
 ]
 
 [project.optional-dependencies]
 lapl = ["robust-laplacian", "libigl"]
 metric = ["networkx", "potpourri3d"]
 sampling = ["pymeshlab"]
-rematching = [
-    "Rematching@git+https://github.com/filthynobleman/rematching.git@python-binding",
-]
+rematching = []
 sinkhorn = ["POT"]
 opt = ["geomfum[lapl,metric,sampling,rematching,sinkhorn]"]
-fun = [
-    "geopext@git+https://github.com/luisfpereira/geopext.git@2b7a7be1a8fdc6e5755e5f4bda88bc284065e829",
-]
+fun = []
 test-scripts = ["nbformat", "nbconvert", "ipykernel", "ipython", "pyvista", "plotly"]
 test = [
     "pytest",
-    "polpo@git+https://github.com/geometric-intelligence/polpo.git@main",
     "geomfum[opt,test-scripts,plotting-all]",
 ]
 plotly = ["plotly", "nbformat"]
